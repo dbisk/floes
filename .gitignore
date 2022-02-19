@@ -1,0 +1,26 @@
+# Python files
+*.pyc
+__pycache__
+
+# C compiler outputs
+*.so
+*.o
+
+# python build outputs
+dist
+
+# Environment files
+.vscode
+.env
+.venv
+env
+venv
+
+# Data directories
+data
+
+# data files
+*.dat
+
+# mac file structure
+.DS_STORE

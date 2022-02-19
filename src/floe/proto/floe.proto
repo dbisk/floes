@@ -1,0 +1,24 @@
+// floe.proto
+// protobuf3 definition of the communication scheme between the server and 
+// clients
+
+syntax = "proto3";
+
+package floe;
+
+service FloeService {
+    rpc GetModel(FloeMessage) returns (FloeMessage) {}
+    rpc ContributeModel(FloeMessage) returns (FloeMessage) {}
+    rpc Subscribe(FloeMessage) returns (stream FloeMessage) {}
+}
+
+message FloeMessage {
+    string msg = 1;
+    repeated Tensor weights = 2;
+    optional string timestamp = 3;
+}
+
+message Tensor {
+    repeated int32 shape = 1;
+    bytes data = 2;
+}
