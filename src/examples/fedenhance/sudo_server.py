@@ -15,21 +15,14 @@ import torch
 import floe.server
 import floe.strategy
 
-
-class SUDOModel(torch.nn.Module):
-
-    def __init__(self):
-        super().__init__()
-    
-    def forward(self, x):
-        return x
+from sudormrf import SuDORMRF
 
 
 def main():
     address = '[::]:50051'
 
     # create the model
-    model = SUDOModel()
+    model = SuDORMRF()
     model = [val.cpu().numpy() for _, val in model.state_dict().items()]
 
     # start the server
