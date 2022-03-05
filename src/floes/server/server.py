@@ -15,9 +15,9 @@ from typing import Dict, List
 import numpy as np
 
 from .client_stub import ClientStub
-from floe.core import floe_logger
-from floe.strategy import Strategy, UnweightedFedAvg
-from floe.proto.floe_pb2 import FloeMessage
+from floes.core import floes_logger
+from floes.strategy import Strategy, UnweightedFedAvg
+from floes.proto.floes_pb2 import FloesMessage
 
 
 class Server:
@@ -32,7 +32,7 @@ class Server:
         self.model: List[np.ndarray] = None
         self.model_timestamp: str = None
         self.model_queue: queue.Queue = queue.Queue()
-        self.broadcast_message: FloeMessage = None
+        self.broadcast_message: FloesMessage = None
         self._strategy = UnweightedFedAvg()
     
     @property
@@ -96,7 +96,7 @@ class Server:
                 model, ts = self.model_queue.get(block=True, timeout=timeout)
             except queue.Empty:
                 # we exceeded our timeout
-                floe_logger.logger.write(
+                floes_logger.logger.write(
                     'Timeout exceeded waiting for contributors. Continuing '
                     'without remaining contributors.',
                     logging.WARNING
@@ -121,13 +121,13 @@ class Server:
         # set the server model to the new model
         self.set_model(new_model)
     
-    def broadcast(self, msg: FloeMessage):
+    def broadcast(self, msg: FloesMessage):
         """
         Broadcasts a message to all registered clients. Also sets the Server's
         current `broadcast_message` property.
 
         Args:
-            msg: FloeMessage
+            msg: FloesMessage
                 The message to send to all registered clients.
         """
         for id in self._clients:
@@ -160,7 +160,7 @@ class Server:
         if self.broadcast_message is not None:
             client.write(self.broadcast_message)
 
-        floe_logger.logger.write(f'Added client {client.id}.')
+        floes_logger.logger.write(f'Added client {client.id}.')
         return True
 
     def remove_client(self, client_id: str) -> bool:
@@ -176,10 +176,10 @@ class Server:
             if self._clients[client_id].is_contributor:
                 self._contributors.remove(client_id)
             del self._clients[client_id]
-            floe_logger.logger.write(f'Removed client {client_id}.')
+            floes_logger.logger.write(f'Removed client {client_id}.')
             return True
         else:
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'Failed to remove client {client_id} as it does not exist.',
                 logging.WARNING
             )

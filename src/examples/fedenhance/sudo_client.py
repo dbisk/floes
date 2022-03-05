@@ -12,12 +12,12 @@ Efficient Networks for Universal Audio Source Separation". MLSP 2020.
 
 import torch
 
-import floe.client
+import floes.client
 
 from sudormrf import SuDORMRF
 
 
-class SuDOClient(floe.client.PyTorchClient):
+class SuDOClient(floes.client.PyTorchClient):
     
     def __init__(self, model: SuDORMRF):
         super().__init__(model)
@@ -38,6 +38,8 @@ class SuDOClient(floe.client.PyTorchClient):
         optimizer = torch.optim.Adam(self.model.parameters())
 
         device = self.device
+        dummy_inputs = dummy_inputs.to(device)
+        dummy_targets = dummy_targets.to(device)
         self.model = self.model.to(device)
 
         self.model.train()
@@ -75,11 +77,11 @@ def main():
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
     print("Awaiting signal from server to begin")
-    trained_model = floe.client.start_torch_client(client, address)
+    trained_model = floes.client.start_torch_client(client, address)
 
     # for metrics, just print them
     print("Server indicates training done. Evaluating new model...")
-    metrics = evaluate_model(trained_model.model)
+    metrics = evaluate_model(trained_model.model.to('cpu'))
     print(metrics)
 
 

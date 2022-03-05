@@ -16,12 +16,12 @@ from typing import Iterator
 import grpc
 
 from .client_stub import ClientStub
-import floe.core.condecon as condecon
-from floe.core.connection import ServerClientConnection
-import floe.core.floe_logger as floe_logger
-from floe.server.server import Server
-import floe.proto.floe_pb2_grpc as floe_pb2_grpc
-from floe.proto.floe_pb2 import FloeMessage, Tensor
+import floes.core.condecon as condecon
+from floes.core.connection import ServerClientConnection
+import floes.core.floes_logger as floes_logger
+from floes.server.server import Server
+import floes.proto.floes_pb2_grpc as floes_pb2_grpc
+from floes.proto.floes_pb2 import FloesMessage
 
 
 def _register_client(
@@ -34,7 +34,7 @@ def _register_client(
         # register a callback function that closes the client in case the RPC
         # connection is terminated for some reason
         def rpc_termination_callback():
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'RPC Termination Callback called on {client.id}.'
             )
             server.remove_client(client.id)
@@ -45,23 +45,23 @@ def _register_client(
         return False
 
 
-class FloeServiceServicer(floe_pb2_grpc.FloeServiceServicer):
+class FloesServiceServicer(floes_pb2_grpc.FloesServiceServicer):
     
     def __init__(self):
         self.server = Server()
     
     def GetModel(
         self,
-        request: FloeMessage,
+        request: FloesMessage,
         context: grpc.ServicerContext
-    ) -> FloeMessage:
+    ) -> FloesMessage:
         """
-        Servicer function for GetModel. See `floe.proto` for function
+        Servicer function for GetModel. See `floes.proto` for function
         declarations.
         """
 
         peer = context.peer()
-        floe_logger.logger.write(
+        floes_logger.logger.write(
             f'GetModel request received from {peer}.',
             level=logging.INFO
         )
@@ -70,27 +70,27 @@ class FloeServiceServicer(floe_pb2_grpc.FloeServiceServicer):
             model = self.server.get_model()
             model = condecon.construct_from_alist(model)
             model_timestamp = self.server.get_model_timestamp()
-            response = FloeMessage(
+            response = FloesMessage(
                 msg='OK',
                 weights=model,
                 timestamp=model_timestamp
             )
         else:
-            response = FloeMessage(msg='GetModel:REJECTED')
+            response = FloesMessage(msg='GetModel:REJECTED')
         return response
     
     def ContributeModel(
         self,
-        request: FloeMessage,
+        request: FloesMessage,
         context: grpc.ServicerContext
-    ) -> FloeMessage:
+    ) -> FloesMessage:
         """
-        Servicer function for ContributeModel. See `floe.proto` for function
+        Servicer function for ContributeModel. See `floes.proto` for function
         declarations.
         """
 
         peer = context.peer()
-        floe_logger.logger.write(
+        floes_logger.logger.write(
             f'Client {peer} is offering a model.',
             level=logging.INFO
         )
@@ -105,28 +105,28 @@ class FloeServiceServicer(floe_pb2_grpc.FloeServiceServicer):
             self.server.model_queue.put((model, ts))
 
             # logging and response
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'Model from Client {peer} accepted with valid timestamp.',
                 level=logging.INFO
             )
-            response = FloeMessage(msg="ContributeModel:ACCEPTED")
+            response = FloesMessage(msg="ContributeModel:ACCEPTED")
         else:
             # incorrect timestamp, reject
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'Model from Client {peer} REJECTED with invalid timestamp.',
                 level=logging.WARNING
             )
-            response = FloeMessage(msg="ContributeModel:REJECTED")
+            response = FloesMessage(msg="ContributeModel:REJECTED")
         
         return response
 
     def Subscribe(
         self,
-        request: FloeMessage,
+        request: FloesMessage,
         context: grpc.ServicerContext
-    ) -> Iterator[FloeMessage]:
+    ) -> Iterator[FloesMessage]:
         """
-        Servicer function for Subscribe. See `floe.proto` for function
+        Servicer function for Subscribe. See `floes.proto` for function
         declarations.
         """
 
@@ -135,7 +135,7 @@ class FloeServiceServicer(floe_pb2_grpc.FloeServiceServicer):
         job = 'CONTRIBUTOR' if job == 'Subscribe:CONTRIBUTOR' else 'SUBSCRIBER'
 
         peer = context.peer()
-        floe_logger.logger.write(f'Client {peer} joined as {job}.')
+        floes_logger.logger.write(f'Client {peer} joined as {job}.')
 
         # register the client with the server
         conn = ServerClientConnection()

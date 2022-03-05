@@ -18,11 +18,11 @@ from typing import List
 import grpc
 import numpy as np
 
-import floe.core.floe_logger as floe_logger
-from floe.server.grpc_server import FloeServiceServicer
-from floe.strategy import Strategy
-from floe.proto.floe_pb2 import FloeMessage
-import floe.proto.floe_pb2_grpc as floe_pb2_grpc
+import floes.core.floes_logger as floes_logger
+from floes.server.grpc_server import FloesServiceServicer
+from floes.strategy import Strategy
+from floes.proto.floes_pb2 import FloesMessage
+import floes.proto.floes_pb2_grpc as floes_pb2_grpc
 
 
 MAX_MESSAGE_LENGTH = 536_870_912 # == 512 * 1024 * 1024
@@ -41,7 +41,7 @@ def start_grpc_server(
             ("grpc.http2.max_pings_without_data", 0)
         ]
     
-    servicer = FloeServiceServicer()
+    servicer = FloesServiceServicer()
     servicer.server.set_model(model)
     servicer.server.set_strategy(strategy)
 
@@ -49,7 +49,7 @@ def start_grpc_server(
         futures.ThreadPoolExecutor(max_workers=10),
         options=options
     )
-    floe_pb2_grpc.add_FloeServiceServicer_to_server(
+    floes_pb2_grpc.add_FloesServiceServicer_to_server(
         servicer, server
     )
     server.add_insecure_port(address)
@@ -67,7 +67,7 @@ def start_server(
     # start the grpc server
     server, servicer = start_grpc_server(model, address, strategy)
 
-    floe_logger.logger.write(
+    floes_logger.logger.write(
         'Server started. Awaiting minimum number of clients to start rounds.',
         logging.INFO
     )
@@ -79,20 +79,20 @@ def start_server(
     # start the federated learning rounds
     for i in range(rounds):
         # logging
-        floe_logger.logger.write(
+        floes_logger.logger.write(
             f'Beginning federated round {i}.',
             level=logging.INFO
         )
         
         # broadcast that a model is available to the clients
-        servicer.server.broadcast(FloeMessage(msg='Subscribe:NEW_AVAILABLE'))
+        servicer.server.broadcast(FloesMessage(msg='Subscribe:NEW_AVAILABLE'))
 
         # wait for the clients to respond with their updated models
         servicer.server.source_model_from_clients(timeout=600)
 
     # broadcast a new model available to the clients one more time and notify
     # that the server is done.
-    servicer.server.broadcast(FloeMessage(msg='Subscribe:DONE'))
+    servicer.server.broadcast(FloesMessage(msg='Subscribe:DONE'))
 
     # await termination by Ctrl+C
     server.wait_for_termination()

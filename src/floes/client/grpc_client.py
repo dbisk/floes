@@ -7,10 +7,10 @@ import logging
 
 import numpy as np
 
-import floe.core.condecon as condecon
-import floe.core.floe_logger as floe_logger
-from floe.proto.floe_pb2 import FloeMessage, Tensor
-from floe.proto.floe_pb2_grpc import FloeServiceStub
+import floes.core.condecon as condecon
+import floes.core.floes_logger as floes_logger
+from floes.proto.floes_pb2 import FloesMessage, Tensor
+from floes.proto.floes_pb2_grpc import FloesServiceStub
 
 
 class GRPCCLient(object):
@@ -21,22 +21,22 @@ class GRPCCLient(object):
 
     def get_model_from_server(
         self, 
-        stub: FloeServiceStub
+        stub: FloesServiceStub
     ) -> Tuple[List[np.ndarray], str]:
         """
         Gets the most recent model from the server, as well as the timestamp
         of that model for versioning purposed.
 
         Args:
-            stub: `FloeServiceStub`
-                The `FloeServiceStub` connecting the client to the server.
+            stub: `FloesServiceStub`
+                The `FloesServiceStub` connecting the client to the server.
         Returns:
             `tuple` of the received model as `List[np.ndarray]`, and the new
             model timestamp as `str`.
         """
         
         # request the newest model from the server
-        req = FloeMessage(msg='GetModel:NEWEST')
+        req = FloesMessage(msg='GetModel:NEWEST')
         response = stub.GetModel(req)
 
         # get the new model timestamp
@@ -49,21 +49,21 @@ class GRPCCLient(object):
     
     def register_as_contributor(
         self,
-        stub: FloeServiceStub
-    ) -> Iterator[FloeMessage]:
+        stub: FloesServiceStub
+    ) -> Iterator[FloesMessage]:
         """
         Registers this client as a collaborator in the federated learning
         scenario. This means that this client will be offering models after
         each training round to the server.
 
         Args:
-            stub: `FloeServiceStub`
-                The `FloeServiceStub` connecting the client to the server
+            stub: `FloesServiceStub`
+                The `FloesServiceStub` connecting the client to the server
         """
 
         if self._is_contributor:
             # we are already a collaborator so we don't do anything new
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'This client already registered as a contributor.',
                 logging.WARNING
             )
@@ -77,21 +77,21 @@ class GRPCCLient(object):
     
     def register_as_subscriber(
         self,
-        stub: FloeServiceStub
-    ) -> Iterator[FloeMessage]:
+        stub: FloesServiceStub
+    ) -> Iterator[FloesMessage]:
         """
         Registers this client as a subscriber in the federated learning
         scenario. This means that the client will listen for server broadcast
         messages, but will not contribute model updates to the server.
 
         Args:
-            stub: `FloeServiceStub`
-                The `FloeServiceStub` connecting the client to the server.
+            stub: `FloesServiceStub`
+                The `FloesServiceStub` connecting the client to the server.
         """
 
         if self._is_subscriber:
             # we are already a subscriber so we don't do anything new
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'This client already registered as a subscriber.',
                 logging.WARNING
             )
@@ -100,10 +100,10 @@ class GRPCCLient(object):
         # set flags for this client
         self._is_subscriber = True
         
-        # construct the FloeMessage to be sent to the server indicating our
+        # construct the FloesMessage to be sent to the server indicating our
         # intention to join
         msg = 'Subscribe:CONTRIBUTOR' if self._is_contributor else 'Subscribe:SUBSCRIBER'
-        request = FloeMessage(msg=msg)
+        request = FloesMessage(msg=msg)
         
         # tell the server we are joining
         server_message_iterator = stub.Subscribe(request)
@@ -111,7 +111,7 @@ class GRPCCLient(object):
     
     def contribute_model_to_server(
         self,
-        stub: FloeServiceStub,
+        stub: FloesServiceStub,
         params: List[np.ndarray],
         timestamp: str
     ):
@@ -120,8 +120,8 @@ class GRPCCLient(object):
         this client is registered as a collaborator.
 
         Args:
-            stub: `FloeServiceStub`
-                The `FloeServiceStub` connecting the client to the server.
+            stub: `FloesServiceStub`
+                The `FloesServiceStub` connecting the client to the server.
             params: `List[np.ndarray]`
                 The model parameters being offered to the server.
             timestamp: `str`
@@ -129,16 +129,16 @@ class GRPCCLient(object):
         """
 
         if not self._is_contributor:
-            floe_logger.logger.write(
+            floes_logger.logger.write(
                 f'This client is not a registered contributor',
                 logging.ERROR
             )
             return
 
-        # construct the FloeMessage
+        # construct the FloesMessage
         weights = condecon.construct_from_alist(params)
         msg = 'OK'
-        request = FloeMessage(
+        request = FloesMessage(
             msg=msg, 
             weights=weights, 
             timestamp=timestamp

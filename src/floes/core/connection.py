@@ -12,7 +12,7 @@ from enum import Enum
 import threading
 from typing import Iterator
 
-from floe.proto.floe_pb2 import FloeMessage
+from floes.proto.floes_pb2 import FloesMessage
 
 class Status(Enum):
 
@@ -37,7 +37,7 @@ class ServerClientConnection(object):
         self._status = state
         self._cv.notify_all()
     
-    def set_message(self, msg: FloeMessage):
+    def set_message(self, msg: FloesMessage):
         with self._cv:
             self._message = msg
             self._transition(Status.MESSAGE_READY)
@@ -46,7 +46,7 @@ class ServerClientConnection(object):
         with self._cv:
             self._transition(Status.CLOSED)
 
-    def message_generator(self) -> Iterator[FloeMessage]:
+    def message_generator(self) -> Iterator[FloesMessage]:
         while not (self._status == Status.CLOSED):
             with self._cv:
                 self._cv.wait_for(

@@ -12,8 +12,8 @@ Efficient Networks for Universal Audio Source Separation". MLSP 2020.
 
 import torch
 
-import floe.server
-import floe.strategy
+import floes.server
+import floes.strategy
 
 from sudormrf import SuDORMRF
 
@@ -27,11 +27,11 @@ def main():
 
     # start the server
     # note: this never returns
-    floe.server.start_server(
+    floes.server.start_server(
         model,
         address,
         3,
-        floe.strategy.UnweightedFedAvg()
+        floes.strategy.UnweightedFedAvg()
     )
 
 

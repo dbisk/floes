@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import floe.proto.floe_pb2 as floe__pb2
+import floes.proto.floes_pb2 as floes__pb2
 
 
-class FloeServiceStub(object):
+class FloesServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,23 +15,23 @@ class FloeServiceStub(object):
             channel: A grpc.Channel.
         """
         self.GetModel = channel.unary_unary(
-                '/floe.FloeService/GetModel',
-                request_serializer=floe__pb2.FloeMessage.SerializeToString,
-                response_deserializer=floe__pb2.FloeMessage.FromString,
+                '/floes.FloesService/GetModel',
+                request_serializer=floes__pb2.FloesMessage.SerializeToString,
+                response_deserializer=floes__pb2.FloesMessage.FromString,
                 )
         self.ContributeModel = channel.unary_unary(
-                '/floe.FloeService/ContributeModel',
-                request_serializer=floe__pb2.FloeMessage.SerializeToString,
-                response_deserializer=floe__pb2.FloeMessage.FromString,
+                '/floes.FloesService/ContributeModel',
+                request_serializer=floes__pb2.FloesMessage.SerializeToString,
+                response_deserializer=floes__pb2.FloesMessage.FromString,
                 )
         self.Subscribe = channel.unary_stream(
-                '/floe.FloeService/Subscribe',
-                request_serializer=floe__pb2.FloeMessage.SerializeToString,
-                response_deserializer=floe__pb2.FloeMessage.FromString,
+                '/floes.FloesService/Subscribe',
+                request_serializer=floes__pb2.FloesMessage.SerializeToString,
+                response_deserializer=floes__pb2.FloesMessage.FromString,
                 )
 
 
-class FloeServiceServicer(object):
+class FloesServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetModel(self, request, context):
@@ -53,31 +53,31 @@ class FloeServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_FloeServiceServicer_to_server(servicer, server):
+def add_FloesServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetModel': grpc.unary_unary_rpc_method_handler(
                     servicer.GetModel,
-                    request_deserializer=floe__pb2.FloeMessage.FromString,
-                    response_serializer=floe__pb2.FloeMessage.SerializeToString,
+                    request_deserializer=floes__pb2.FloesMessage.FromString,
+                    response_serializer=floes__pb2.FloesMessage.SerializeToString,
             ),
             'ContributeModel': grpc.unary_unary_rpc_method_handler(
                     servicer.ContributeModel,
-                    request_deserializer=floe__pb2.FloeMessage.FromString,
-                    response_serializer=floe__pb2.FloeMessage.SerializeToString,
+                    request_deserializer=floes__pb2.FloesMessage.FromString,
+                    response_serializer=floes__pb2.FloesMessage.SerializeToString,
             ),
             'Subscribe': grpc.unary_stream_rpc_method_handler(
                     servicer.Subscribe,
-                    request_deserializer=floe__pb2.FloeMessage.FromString,
-                    response_serializer=floe__pb2.FloeMessage.SerializeToString,
+                    request_deserializer=floes__pb2.FloesMessage.FromString,
+                    response_serializer=floes__pb2.FloesMessage.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'floe.FloeService', rpc_method_handlers)
+            'floes.FloesService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class FloeService(object):
+class FloesService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -91,9 +91,9 @@ class FloeService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/floe.FloeService/GetModel',
-            floe__pb2.FloeMessage.SerializeToString,
-            floe__pb2.FloeMessage.FromString,
+        return grpc.experimental.unary_unary(request, target, '/floes.FloesService/GetModel',
+            floes__pb2.FloesMessage.SerializeToString,
+            floes__pb2.FloesMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -108,9 +108,9 @@ class FloeService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/floe.FloeService/ContributeModel',
-            floe__pb2.FloeMessage.SerializeToString,
-            floe__pb2.FloeMessage.FromString,
+        return grpc.experimental.unary_unary(request, target, '/floes.FloesService/ContributeModel',
+            floes__pb2.FloesMessage.SerializeToString,
+            floes__pb2.FloesMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -125,8 +125,8 @@ class FloeService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/floe.FloeService/Subscribe',
-            floe__pb2.FloeMessage.SerializeToString,
-            floe__pb2.FloeMessage.FromString,
+        return grpc.experimental.unary_stream(request, target, '/floes.FloesService/Subscribe',
+            floes__pb2.FloesMessage.SerializeToString,
+            floes__pb2.FloesMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

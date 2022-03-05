@@ -287,13 +287,16 @@ class SuDORMRF(nn.Module):
         return self.remove_trailing_zeros(estimated_waveforms, input_wav)
 
     def pad_to_appropriate_length(self, x):
+        device = x.device
         values_to_pad = int(x.shape[-1]) % self.lcm
         if values_to_pad:
             appropriate_shape = x.shape
             padded_x = torch.zeros(
                 list(appropriate_shape[:-1]) +
                 [appropriate_shape[-1] + self.lcm - values_to_pad],
-                dtype=torch.float32)
+                dtype=torch.float32,
+                device=device
+            )
             padded_x[..., :x.shape[-1]] = x
             return padded_x
         return x

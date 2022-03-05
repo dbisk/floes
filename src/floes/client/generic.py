@@ -14,7 +14,7 @@ import grpc
 
 from .grpc_client import GRPCCLient
 from .torch_client import PyTorchClient
-from floe.proto.floe_pb2_grpc import FloeServiceStub
+from floes.proto.floes_pb2_grpc import FloesServiceStub
 
 
 MAX_MESSAGE_LENGTH = 536_870_912 # == 512 * 1024 * 1024
@@ -42,7 +42,7 @@ def start_torch_client(torch_client: PyTorchClient, addr: str) -> PyTorchClient:
             ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
         ]
     )
-    stub = FloeServiceStub(channel)
+    stub = FloesServiceStub(channel)
 
     # register this client as a contributor
     server_message_iterator = grpc_client.register_as_contributor(stub)

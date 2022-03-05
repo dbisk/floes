@@ -4,8 +4,8 @@ mnist_server.py - Server for the example using federated learning for MNIST.
 
 import torch
 
-import floe.server
-import floe.strategy
+import floes.server
+import floes.strategy
 
 
 class MNISTModel(torch.nn.Module):
@@ -35,11 +35,11 @@ def main():
 
     # start the server
     # note: this never returns
-    floe.server.start_server(
+    floes.server.start_server(
         model,
         address,
         3,
-        floe.strategy.UnweightedFedAvg()
+        floes.strategy.UnweightedFedAvg()
     )
     
 

@@ -7,8 +7,8 @@ the server.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
-from floe.core.connection import ServerClientConnection
-from floe.proto.floe_pb2 import FloeMessage
+from floes.core.connection import ServerClientConnection
+from floes.proto.floes_pb2 import FloesMessage
 
 
 class ClientStub(object):
@@ -35,12 +35,12 @@ class ClientStub(object):
         self._connection = connection
         self.is_contributor = is_contributor
 
-    def write(self, msg: FloeMessage):
+    def write(self, msg: FloesMessage):
         """
         Sends a message to the client.
 
         Args:
-            msg: `FloeMessage`
+            msg: `FloesMessage`
                 The message to send.
         """
         self._connection.set_message(msg)

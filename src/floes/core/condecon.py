@@ -11,7 +11,7 @@ from typing import List
 
 import numpy as np
 
-from floe.proto.floe_pb2 import Tensor
+from floes.proto.floes_pb2 import Tensor
 
 
 def construct_from_alist(alist: List[np.ndarray]) -> List[Tensor]:
@@ -25,7 +25,7 @@ def construct_from_alist(alist: List[np.ndarray]) -> List[Tensor]:
     Returns:
         `List[Tensor]`
             List of protobuf `Tensor`s that can be directly used as the
-            `weights` parameter of a `FloeMessage` construction.
+            `weights` parameter of a `FloesMessage` construction.
     """
     weights = [Tensor(shape=a.shape, data=a.tobytes()) for a in alist]
     return weights

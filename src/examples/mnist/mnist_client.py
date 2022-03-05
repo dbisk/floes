@@ -6,10 +6,10 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 from tqdm import tqdm
 
-import floe.client
+import floes.client
 
 
-class MNISTClient(floe.client.PyTorchClient):
+class MNISTClient(floes.client.PyTorchClient):
     
     def __init__(self):
         super().__init__(MNISTModel())
@@ -135,7 +135,7 @@ def main():
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
     print("Awaiting signal from server to begin")
-    trained_model = floe.client.start_torch_client(client, address)
+    trained_model = floes.client.start_torch_client(client, address)
 
     # for metrics, we can evaluate the final model on the client side
     print("Server indicates training done. Evaluating new model...")
