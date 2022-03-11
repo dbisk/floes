@@ -30,8 +30,8 @@ class SuDOClient(floes.client.PyTorchClient):
         Fake training using random data.
         """
         # load random data as the dataset
-        dummy_inputs = torch.rand(3, 1, 32079)
-        dummy_targets = torch.rand(3, 2, 32079)
+        dummy_inputs = torch.rand(1, 1, 8000)
+        dummy_targets = torch.rand(1, 2, 8000)
 
         # define a totally fake loss function & optimizer
         criterion = lambda x, y: torch.mean(torch.abs(x - y))
@@ -58,7 +58,7 @@ def evaluate_model(model: torch.nn.Module):
     determines whether the model outputs an appropriately shaped output.
     """
     model.eval()
-    random_input = torch.rand(3, 1, 32079)
+    random_input = torch.rand(3, 1, 8000)
     estimated_sources = model(random_input)
     out_shape = estimated_sources.shape
     return {'output_shape': out_shape}
