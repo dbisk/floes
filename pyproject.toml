@@ -10,14 +10,20 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.8, <3.10"
 numpy = "^1.19"
-torch = "^1.9"
 grpcio = "^1.44"
 grpcio-tools = "^1.44"
+jax = {version = "^0.3.4", optional = true}
+jaxlib = {version = "^0.3.2", optional = true}
+dm-haiku = {version = "^0.0.6", optional = true}
+torch = {version = "^1.9", optional = true}
+torchaudio = {version = "^0.9", optional = true}
+torchvision = {version = "^0.10", optional = true}
+tqdm = {version = "^4.62", optional = true}
 
-[tool.poetry.dev-dependencies]
-torchaudio = "^0.9"
-torchvision = "^0.10"
-tqdm = "^4.62"
+[tool.poetry.extras]
+torch = ["torch", "torchaudio", "torchvision"]
+jax = ["jax", "jaxlib", "dm-haiku"]
+tqdm = ["tqdm"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
