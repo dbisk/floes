@@ -1,5 +1,10 @@
 """
-mnist_server.py - Server for the example using federated learning for MNIST. 
+torch_mnist_server.py - Implementation of a PyTorch Server using FLoES. Trains
+a simple network on the MNIST classification dataset.
+
+@author Dean Biskup
+@email <dbiskup2@illinois.edu>
+@org University of Illinois, Urbana-Champaign Audio Group
 """
 
 import torch
@@ -41,7 +46,6 @@ def main():
         3,
         floes.strategy.UnweightedFedAvg()
     )
-    
 
 
 if __name__ == '__main__':

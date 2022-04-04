@@ -1,3 +1,12 @@
+"""
+torch_mnist_client.py - Implementation of a PyTorch client using FLoES. Trains
+a simple network on the MNIST classification dataset.
+
+@author Dean Biskup
+@email <dbiskup2@illinois.edu>
+@org University of Illinois, Urbana-Champaign Audio Group
+"""
+
 from typing import Dict
 
 import numpy as np
