@@ -7,6 +7,7 @@ import logging
 
 import numpy as np
 
+from floes.core import FloesParameters
 import floes.core.condecon as condecon
 import floes.core.floes_logger as floes_logger
 from floes.proto.floes_pb2 import FloesMessage, Tensor
@@ -22,7 +23,7 @@ class GRPCCLient(object):
     def get_model_from_server(
         self, 
         stub: FloesServiceStub
-    ) -> Tuple[List[np.ndarray], str]:
+    ) -> Tuple[FloesParameters, str]:
         """
         Gets the most recent model from the server, as well as the timestamp
         of that model for versioning purposed.
@@ -31,7 +32,7 @@ class GRPCCLient(object):
             stub: `FloesServiceStub`
                 The `FloesServiceStub` connecting the client to the server.
         Returns:
-            `tuple` of the received model as `List[np.ndarray]`, and the new
+            `tuple` of the received model as `FloesParameters`, and the new
             model timestamp as `str`.
         """
         
@@ -43,7 +44,7 @@ class GRPCCLient(object):
         new_model_timestamp = response.timestamp
 
         # deconstruct the response
-        received_model = condecon.deconstruct_from_tlist(response.weights)
+        received_model = condecon.proto_to_parameters(response.params)
         
         return received_model, new_model_timestamp
     
@@ -112,7 +113,7 @@ class GRPCCLient(object):
     def contribute_model_to_server(
         self,
         stub: FloesServiceStub,
-        params: List[np.ndarray],
+        params: FloesParameters,
         timestamp: str
     ):
         """
@@ -122,7 +123,7 @@ class GRPCCLient(object):
         Args:
             stub: `FloesServiceStub`
                 The `FloesServiceStub` connecting the client to the server.
-            params: `List[np.ndarray]`
+            params: `FloesParameters`
                 The model parameters being offered to the server.
             timestamp: `str`
                 The model timestamp being offered to the server.
@@ -136,11 +137,11 @@ class GRPCCLient(object):
             return
 
         # construct the FloesMessage
-        weights = condecon.construct_from_alist(params)
+        weights = condecon.parameters_to_proto(params)
         msg = 'OK'
         request = FloesMessage(
             msg=msg, 
-            weights=weights, 
+            params=weights, 
             timestamp=timestamp
         )
 

@@ -14,8 +14,13 @@ service FloesService {
 
 message FloesMessage {
     string msg = 1;
-    repeated Tensor weights = 2;
+    optional Parameters params = 2;
     optional string timestamp = 3;
+}
+
+message Parameters {
+    repeated string keys = 1;
+    repeated Tensor weights = 2;
 }
 
 message Tensor {

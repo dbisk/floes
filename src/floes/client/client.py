@@ -7,6 +7,8 @@ from typing import List
 
 import numpy as np
 
+from floes.core import FloesParameters
+
 
 class Client(ABC):
     """
@@ -21,13 +23,13 @@ class Client(ABC):
         self.model_timestamp = model_timestamp
 
     @abstractmethod
-    def get_parameters(self) -> List[np.ndarray]:
+    def get_parameters(self) -> FloesParameters:
         raise NotImplementedError
     
     @abstractmethod
-    def set_parameters(self, parameters: List[np.ndarray]):
+    def set_parameters(self, parameters: FloesParameters):
         raise NotImplementedError
     
     @abstractmethod
-    def train(self):
+    def train(self, **kwargs):
         raise NotImplementedError

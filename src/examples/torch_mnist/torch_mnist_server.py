@@ -7,8 +7,11 @@ a simple network on the MNIST classification dataset.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
+from typing import OrderedDict
+
 import torch
 
+from floes.core import FloesParameters
 import floes.server
 import floes.strategy
 
@@ -36,8 +39,10 @@ def main():
     # create the model
     model = MNISTModel()
 
-    # convert model to list of Numpy arrays
-    model = [val.cpu().numpy() for _, val in model.state_dict().items()]
+    # convert model to FloesParameters (or OrderedDict works too)
+    model = FloesParameters(
+        {k: v.cpu().numpy() for k, v in model.state_dict().items()}
+    )
 
     # start the server
     # note: this never returns

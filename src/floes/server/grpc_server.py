@@ -21,7 +21,7 @@ from floes.core.connection import ServerClientConnection
 import floes.core.floes_logger as floes_logger
 from floes.server.server import Server
 import floes.proto.floes_pb2_grpc as floes_pb2_grpc
-from floes.proto.floes_pb2 import FloesMessage
+from floes.proto.floes_pb2 import FloesMessage, Parameters
 
 
 def _register_client(
@@ -68,11 +68,11 @@ class FloesServiceServicer(floes_pb2_grpc.FloesServiceServicer):
 
         if request.msg == 'GetModel:NEWEST':
             model = self.server.get_model()
-            model = condecon.construct_from_alist(model)
+            model = condecon.parameters_to_proto(model)
             model_timestamp = self.server.get_model_timestamp()
             response = FloesMessage(
                 msg='OK',
-                weights=model,
+                params=model,
                 timestamp=model_timestamp
             )
         else:
@@ -99,7 +99,7 @@ class FloesServiceServicer(floes_pb2_grpc.FloesServiceServicer):
         ts = request.timestamp
         if ts == self.server.get_model_timestamp():
             # correct timestamp, let's deconstruct the message
-            model = condecon.deconstruct_from_tlist(request.weights)
+            model = condecon.proto_to_parameters(request.params)
 
             # add the model to the server's queue
             self.server.model_queue.put((model, ts))

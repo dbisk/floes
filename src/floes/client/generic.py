@@ -19,7 +19,7 @@ from floes.proto.floes_pb2_grpc import FloesServiceStub
 MAX_MESSAGE_LENGTH = 536_870_912 # == 512 * 1024 * 1024
 
 
-def start_client(client: Client, addr: str) -> Client:
+def start_client(client: Client, addr: str, **kwargs) -> Client:
     """
     Starts a generic client that participates in every update round. 
 
@@ -28,6 +28,11 @@ def start_client(client: Client, addr: str) -> Client:
             The client that will be participating in the federated setup.
         address: str
             The IP address of the GRPC channel (generally <server IP>:<port>)
+        **kwargs:
+            Any remaining keyword arguments to be passed into the client's
+            `train` function.
+    Returns:
+        The trained client after the federated learning rounds are over.
     """
 
     # initialize the grpc client connection
@@ -68,7 +73,7 @@ def start_client(client: Client, addr: str) -> Client:
             break
 
         # perform a training round with the new model
-        client.train()
+        client.train(**kwargs)
 
         # offer the model to the server
         params = client.get_parameters()

@@ -11,42 +11,47 @@ from typing import List
 
 import numpy as np
 
-from floes.proto.floes_pb2 import Tensor
+from floes.core import FloesParameters
+from floes.proto.floes_pb2 import Tensor, Parameters
 
 
-def construct_from_alist(alist: List[np.ndarray]) -> List[Tensor]:
+def parameters_to_proto(parameters: FloesParameters) -> Parameters:
     """
-    Constructs a list of protobuf `Tensor` objects from a list of `np.ndarray`.
+    Constructs a protobuf `Parameters` object from a FloesParameters object.
 
     Args:
-        alist: `List[np.ndarray]`
-            The list of `np.ndarray`s that will become a list of protobuf
-            `Tensor`s.
+        parameters: `FloesParameters`
+            The `FloesParameters` (OrderedDict) object to convert to protobuf.
     Returns:
-        `List[Tensor]`
-            List of protobuf `Tensor`s that can be directly used as the
-            `weights` parameter of a `FloesMessage` construction.
+        `Parameters`
+            Protobuf `Parameters` object that can be used in gRPC communication.
     """
-    weights = [Tensor(shape=a.shape, data=a.tobytes()) for a in alist]
-    return weights
+    keys_list = list(parameters.keys())
+    weights = list(parameters.values()) # should be a Numpy array
+    weights = [Tensor(shape=a.shape, data=a.tobytes()) for a in weights]
+    return Parameters(keys=keys_list, weights=weights)
 
 
-def deconstruct_from_tlist(tlist: List[Tensor]) -> List[np.ndarray]:
+def proto_to_parameters(parameters: Parameters) -> FloesParameters:
     """
-    Deconstructs a list of protobuf `Tensor`s into a list of `np.ndarray`s.
+    Deconstructs a protobuf `Parameters` object into a FloesParameters object.
 
     Args:
-        tlist: `List[Tensor]`
-            The list of protobuf `Tensor`s that will become a list of
-            `np.ndarray`s.
+        parameters: `Parameters`
+            The protobuf parameters that will be converted to FloesParameters.
     Returns:
-        `List[np.ndarray]`
-            List of `np.ndarray`s that represent the model.
+        `FloesParameters`
+            The parameters of the model as a `FloesParameters` object
+            (OrderedDict).
     """
+    keys = parameters.keys
+    tlist = parameters.weights
+
     # NOTE: assumes np.float32. Tensor protobuf message should probably be
     # changed to allow for a type definition to override this.
     received_data = [np.frombuffer(t.data, dtype=np.float32) for t in tlist]
     shapes = [tuple(t.shape) for t in tlist]
     for i in range(len(shapes)):
         received_data[i] = np.reshape(received_data[i], shapes[i])
-    return received_data
+    
+    return FloesParameters(zip(keys, received_data))

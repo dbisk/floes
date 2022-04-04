@@ -8,6 +8,8 @@ from typing import List
 import numpy as np
 import torch
 
+from floes.core import FloesParameters
+
 from .client import Client
 
 
@@ -29,10 +31,12 @@ class PyTorchClient(Client):
         super().__init__(model_timestamp)
         self.model = model
     
-    def get_parameters(self) -> List[np.ndarray]:
-        return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
+    def get_parameters(self) -> FloesParameters:
+        numpy_dict = {
+            k: v.cpu().numpy() for k, v in self.model.state_dict().items()
+        }
+        return FloesParameters(numpy_dict)
     
-    def set_parameters(self, parameters: List[np.ndarray]):
-        params_dict = zip(self.model.state_dict().keys(), parameters)
-        state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params_dict})
-        self.model.load_state_dict(state_dict, strict=True)
+    def set_parameters(self, params: FloesParameters):
+        state_dict = {k: torch.Tensor(v) for k, v in params.items()}
+        self.model.load_state_dict(OrderedDict(state_dict), strict=True)

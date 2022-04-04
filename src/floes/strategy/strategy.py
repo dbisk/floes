@@ -10,6 +10,8 @@ representing an aggregation strategy.
 from abc import ABC, abstractmethod
 from typing import List
 
+from floes.core import FloesParameters
+
 
 class Strategy(ABC):
     """
@@ -20,6 +22,6 @@ class Strategy(ABC):
     """
 
     @abstractmethod
-    def aggregate(self, parameters: List):
+    def aggregate(self, parameters: List[FloesParameters]) -> FloesParameters:
         raise NotImplementedError
 

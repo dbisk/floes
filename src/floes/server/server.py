@@ -7,6 +7,7 @@ All servers should extend the `Server` class.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
+import copy
 from datetime import datetime
 import logging
 import queue
@@ -15,7 +16,7 @@ from typing import Dict, List
 import numpy as np
 
 from .client_stub import ClientStub
-from floes.core import floes_logger
+from floes.core import floes_logger, FloesParameters
 from floes.strategy import Strategy, UnweightedFedAvg
 from floes.proto.floes_pb2 import FloesMessage
 
@@ -29,7 +30,7 @@ class Server:
         self.min_clients = min_clients
         self._clients: Dict[str, ClientStub] = {}
         self._contributors: List[str] = []
-        self.model: List[np.ndarray] = None
+        self.model: FloesParameters = None
         self.model_timestamp: str = None
         self.model_queue: queue.Queue = queue.Queue()
         self.broadcast_message: FloesMessage = None
@@ -43,23 +44,23 @@ class Server:
     def num_contributors(self) -> int:
         return len(self._contributors)
     
-    def get_model(self) -> List[np.ndarray]:
+    def get_model(self) -> FloesParameters:
         return self.model
     
     def get_model_timestamp(self) -> str:
         return self.model_timestamp
     
-    def set_model(self, model: List[np.ndarray]):
+    def set_model(self, model: FloesParameters):
         """
         Sets the global model for the server. Creates a deep copy of the given
         list of ndarrays, so the original model passed into this function can
         be modified without affecting the stored global model.
 
         Args:
-            model: `List[np.ndarray]`
-                The list of ndarrays representing the global model parameters.
+            model: `FloesParameters`
+                The FloesParameters object representing the model.
         """
-        self.model = [arr.copy() for arr in model]
+        self.model = copy.deepcopy(model)
         self.model_timestamp = str(datetime.now())
     
     def set_strategy(self, strategy: Strategy):
