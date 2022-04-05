@@ -15,6 +15,7 @@ grpcio-tools = "^1.44"
 jax = {version = "^0.3.4", optional = true}
 jaxlib = {version = "^0.3.2", optional = true}
 dm-haiku = {version = "^0.0.6", optional = true}
+optax = {version = "^0.1.1", optional = true}
 torch = {version = "^1.9", optional = true}
 torchaudio = {version = "^0.9", optional = true}
 torchvision = {version = "^0.10", optional = true}
@@ -22,7 +23,8 @@ tqdm = {version = "^4.62", optional = true}
 
 [tool.poetry.extras]
 torch = ["torch", "torchaudio", "torchvision"]
-jax = ["jax", "jaxlib", "dm-haiku"]
+jax = ["jax", "jaxlib"]
+haiku = ["jax", "jaxlib", "dm-haiku", "optax"]
 tqdm = ["tqdm"]
 
 [build-system]
