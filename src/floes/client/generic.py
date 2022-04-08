@@ -13,22 +13,21 @@ location.
 import grpc
 
 from .grpc_client import GRPCCLient
-from .torch_client import PyTorchClient
+from .client import Client
 from floes.proto.floes_pb2_grpc import FloesServiceStub
-
 
 MAX_MESSAGE_LENGTH = 536_870_912 # == 512 * 1024 * 1024
 
 
-def start_torch_client(torch_client: PyTorchClient, addr: str) -> PyTorchClient:
+def start_client(client: Client, addr: str) -> Client:
     """
-    Starts a generic torch client that participates in every update round. 
+    Starts a generic client that participates in every update round. 
 
     Args:
-        model: torch.nn.Module
-            The torch model that will be trained.
+        client: Client
+            The client that will be participating in the federated setup.
         address: str
-            The IP address of the GRPC channel (generally server IP + port)
+            The IP address of the GRPC channel (generally <server IP>:<port>)
     """
 
     # initialize the grpc client connection
@@ -55,32 +54,32 @@ def start_torch_client(torch_client: PyTorchClient, addr: str) -> PyTorchClient:
 
         # don't need to train if the most recent model is still the last model
         if (
-            (torch_client.model_timestamp is not None) and
-            (new_timestamp == torch_client.model_timestamp)
+            (client.model_timestamp is not None) and
+            (new_timestamp == client.model_timestamp)
         ):
             continue
 
         # set the client's model to the one received from the server
-        torch_client.set_parameters(new_model)
-        torch_client.set_model_timestamp(new_timestamp)
+        client.set_parameters(new_model)
+        client.set_model_timestamp(new_timestamp)
 
         # if we're done, we can exit
         if msg is not None and msg.msg == 'Subscribe:DONE':
             break
 
         # perform a training round with the new model
-        torch_client.train()
+        client.train()
 
         # offer the model to the server
-        params = torch_client.get_parameters()
+        params = client.get_parameters()
         grpc_client.contribute_model_to_server(
             stub,
             params,
-            torch_client.model_timestamp
+            client.model_timestamp
         )
 
         # wait for the server to indicate that a new message is available
         msg = next(server_message_iterator)
     
     # return the model
-    return torch_client
+    return client

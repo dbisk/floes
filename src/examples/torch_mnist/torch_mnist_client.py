@@ -144,7 +144,7 @@ def main():
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
     print("Awaiting signal from server to begin")
-    trained_model = floes.client.start_torch_client(client, address)
+    trained_model = floes.client.start_client(client, address)
 
     # for metrics, we can evaluate the final model on the client side
     print("Server indicates training done. Evaluating new model...")

@@ -34,8 +34,9 @@ def main():
     address = '[::]:50051'
 
     # create the model
-    # NOTE: this is jank
     model = MNISTModel()
+
+    # convert model to list of Numpy arrays
     model = [val.cpu().numpy() for _, val in model.state_dict().items()]
 
     # start the server
