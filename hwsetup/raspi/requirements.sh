@@ -13,4 +13,4 @@ pip install setuptools==58.3.0
 pip install Cython
 
 # install floes (which installs grpc and torch)
-pip install floes-0.0.1-py3-none-any.whl
+pip install floes-0.0.2-py3-none-any.whl
