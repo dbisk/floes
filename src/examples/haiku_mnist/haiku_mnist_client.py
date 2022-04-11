@@ -13,7 +13,7 @@ perform dataloading. This part is entirely unrelated to FLoES.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
-from typing import List, Tuple, Dict
+from typing import Tuple, Dict
 
 import haiku as hk
 import jax
@@ -25,36 +25,14 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 
 import floes.client
-from floes.core import FloesParameters
 
 from haiku_mnist_common import net_fn, numpy_collate, TorchToJAXTransform, Batch
 
 
-class MNISTClient(floes.client.Client):
+class MNISTClient(floes.client.HaikuClient):
 
-    def __init__(self, net, params: hk.Params):
-        super().__init__()
-        self.net = net
-        self.hk_params = params
-        self._create_keymap(self.hk_params)
-
-    def _create_keymap(self, params: hk.Params):
-        self._keymap: Dict[str, Tuple[str, str]] = {}
-        for top_key, lower_dict in params.items():
-            for lower_key in lower_dict.keys():
-                self._keymap[f'{top_key}:{lower_key}'] = (top_key, lower_key)
-
-    def get_parameters(self) -> FloesParameters:
-        params_dict = {}
-        for top_key, lower_dict in self.hk_params.items():
-            for lower_key, weights in lower_dict.items():
-                params_dict[f'{top_key}:{lower_key}'] = np.array(weights)
-        return FloesParameters(params_dict)
-
-    def set_parameters(self, params: FloesParameters):
-        for layer, weights in params.items():
-            top_key, lower_key = self._keymap[layer]
-            self.hk_params[top_key][lower_key] = jnp.array(weights)
+    def __init__(self, params, net):
+        super().__init__(params, net)
     
     def set_train_metadata(self, train_dataloader, optimizer):
         self.train_dataloader = train_dataloader
@@ -63,7 +41,7 @@ class MNISTClient(floes.client.Client):
     def train(self):
         net = self.net
         opt = self.optimizer
-        opt_state = self.optimizer.init(self.hk_params)
+        opt_state = self.optimizer.init(self.params)
 
         # Training loss (cross-entropy).
         def loss(params: hk.Params, batch: Batch) -> jnp.ndarray:
@@ -104,15 +82,15 @@ class MNISTClient(floes.client.Client):
                 batch = {"image": X, "label": y}
 
                 # do SGD on a batch of training samples
-                self.hk_params, opt_state = update(
-                    self.hk_params,
+                self.params, opt_state = update(
+                    self.params,
                     opt_state,
                     batch
                 )
 
                 # periodically assess the accuracy
                 if count % (int(dataloader_length / 5)) == 0:
-                    acc = accuracy(self.hk_params, batch)
+                    acc = accuracy(self.params, batch)
                     count = 0
                     tbatch.set_postfix_str(f'Training Acc: {acc:.3f}')
                 count += 1
@@ -128,18 +106,6 @@ def evaluate_model(net, hk_params: hk.Params) -> Dict:
     )
 
     test_dataloader = DataLoader(test_data, batch_size=10, collate_fn=numpy_collate, shuffle=False)
-
-    # define the loss function
-    def loss(params: hk.Params, batch: Batch) -> jnp.ndarray:
-        """Compute the loss of the network, including L2."""
-        logits = net.apply(params, batch)
-        labels = jax.nn.one_hot(batch["label"], 10)
-
-        l2 = 0.5 * sum(jnp.sum(jnp.square(p)) for p in jax.tree_leaves(params))
-        softmax_xent = -jnp.sum(labels * jax.nn.log_softmax(logits))
-        softmax_xent /= labels.shape[0]
-
-        return softmax_xent + 1e-4 * l2
     
     @jax.jit
     def accuracy(params: hk.Params, batch: Batch) -> jnp.ndarray:
@@ -159,7 +125,7 @@ def evaluate_model(net, hk_params: hk.Params) -> Dict:
 
 
 def main():
-    # Make the network and optimiser.
+    # create the network and optimizer objects
     net = hk.without_apply_rng(hk.transform(net_fn))
     opt = optax.sgd(1e-3)
 
@@ -191,14 +157,14 @@ def main():
     params = net.init(jax.random.PRNGKey(42), batch)
 
     # create the floes client
-    client = MNISTClient(net, params)
+    client = MNISTClient(params, net)
     client.set_train_metadata(train_dataloader, opt)
 
     # do one round of local training to get a baseline
     client.train()
     print(
         "Initial Accuracy:",
-        evaluate_model(net, client.hk_params)['accuracy']
+        evaluate_model(net, client.params)['accuracy']
     )
 
     # set address information
@@ -214,7 +180,7 @@ def main():
     print("Evaluating final model on local test set...")
     print(
         "Final Accuracy:",
-        evaluate_model(net, trained_client.hk_params)['accuracy']
+        evaluate_model(net, trained_client.params)['accuracy']
     )
 
 
