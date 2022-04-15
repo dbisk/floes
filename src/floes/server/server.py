@@ -13,11 +13,9 @@ import logging
 import queue
 from typing import Dict, List
 
-import numpy as np
-
 from .client_stub import ClientStub
 from floes.core import floes_logger, FloesParameters
-from floes.strategy import Strategy, UnweightedFedAvg
+from floes.strategy import Strategy
 from floes.proto.floes_pb2 import FloesMessage
 
 
@@ -34,7 +32,7 @@ class Server:
         self.model_timestamp: str = None
         self.model_queue: queue.Queue = queue.Queue()
         self.broadcast_message: FloesMessage = None
-        self._strategy = UnweightedFedAvg()
+        self._strategy: Strategy = None
     
     @property
     def num_clients(self) -> int:

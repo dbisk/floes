@@ -16,8 +16,8 @@ import time
 from typing import List
 
 import grpc
-import numpy as np
 
+from floes.core import FloesParameters
 import floes.core.floes_logger as floes_logger
 from floes.server.grpc_server import FloesServiceServicer
 from floes.strategy import Strategy
@@ -29,7 +29,7 @@ MAX_MESSAGE_LENGTH = 536_870_912 # == 512 * 1024 * 1024
 
 
 def start_grpc_server(
-    model: List[np.ndarray], 
+    model: FloesParameters, 
     address: str,
     strategy: Strategy,
     options: List = None
@@ -59,7 +59,7 @@ def start_grpc_server(
 
 
 def start_server(
-    model: List[np.ndarray],
+    model: FloesParameters,
     address: str,
     rounds: int,
     strategy: Strategy
