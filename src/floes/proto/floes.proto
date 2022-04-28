@@ -16,6 +16,12 @@ message FloesMessage {
     string msg = 1;
     optional Parameters params = 2;
     optional string timestamp = 3;
+    optional BoolDict trainlayers = 4;
+}
+
+message BoolDict {
+    repeated string keys = 1;
+    repeated bool values = 2;
 }
 
 message Parameters {

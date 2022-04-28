@@ -9,6 +9,7 @@ location.
 @email <dbiskup2@illinois.edu>
 @org University of Illinois, Urbana-Champaign Audio Group
 """
+from typing import Dict
 
 import grpc
 
@@ -24,15 +25,41 @@ def start_client(client: Client, addr: str, **kwargs) -> Client:
     Starts a generic client that participates in every update round. 
 
     Args:
-        client: Client
+        client: `Client`
             The client that will be participating in the federated setup.
-        address: str
+        address: `str`
             The IP address of the GRPC channel (generally <server IP>:<port>)
         **kwargs:
             Any remaining keyword arguments to be passed into the client's
             `train` function.
     Returns:
         The trained client after the federated learning rounds are over.
+    """
+    return start_layerwise_client(client, addr, None, **kwargs)
+
+
+def start_layerwise_client(
+    client: Client, addr: str, layers: Dict[str, bool], **kwargs
+) -> Client:
+    """
+    Starts a client that only trains some specified layers in each update
+    round. 
+
+    Args:
+        client: `Client`
+            The client that will be participating in the federated setup.
+        address: `str`
+            The IP address of the GRPC channel (generally <serverIP>:<port>)
+        layers: `Dict[str, bool]`
+            The trainable layers dictionary where the keys are the layer name
+            and the values are `True` if this client trains it, and `False`
+            otherwise.
+        **kwargs:
+            Any remaining keyword arguments to be passed into the client's
+            `train` function.
+    Returns:
+        `Client`
+            The trained client after the federated learning rounds are over.
     """
 
     # initialize the grpc client connection
@@ -80,7 +107,8 @@ def start_client(client: Client, addr: str, **kwargs) -> Client:
         grpc_client.contribute_model_to_server(
             stub,
             params,
-            client.model_timestamp
+            client.model_timestamp,
+            layers=layers
         )
 
         # wait for the server to indicate that a new message is available

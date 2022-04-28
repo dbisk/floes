@@ -62,8 +62,9 @@ def start_server(
     model: FloesParameters,
     address: str,
     rounds: int,
-    strategy: Strategy
-):
+    strategy: Strategy,
+    await_termination: bool = True
+) -> FloesParameters:
     # start the grpc server
     server, servicer = start_grpc_server(model, address, strategy)
 
@@ -95,4 +96,7 @@ def start_server(
     servicer.server.broadcast(FloesMessage(msg='Subscribe:DONE'))
 
     # await termination by Ctrl+C
-    server.wait_for_termination()
+    if await_termination:
+        server.wait_for_termination()
+    else:
+        return servicer.server.get_model()

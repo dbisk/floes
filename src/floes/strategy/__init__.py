@@ -1,3 +1,3 @@
 
 from .strategy import Strategy
-from .fedavg import UnweightedFedAvg
+from .fedavg import UnweightedFedAvg, LayerwiseFedAvg

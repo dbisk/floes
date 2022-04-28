@@ -2,15 +2,13 @@
 grpc_client.py
 """
 
-from typing import List, Tuple, Iterator
+from typing import Dict, Tuple, Iterator
 import logging
-
-import numpy as np
 
 from floes.core import FloesParameters
 import floes.core.condecon as condecon
 import floes.core.floes_logger as floes_logger
-from floes.proto.floes_pb2 import FloesMessage, Tensor
+from floes.proto.floes_pb2 import FloesMessage
 from floes.proto.floes_pb2_grpc import FloesServiceStub
 
 
@@ -114,7 +112,8 @@ class GRPCCLient(object):
         self,
         stub: FloesServiceStub,
         params: FloesParameters,
-        timestamp: str
+        timestamp: str,
+        layers: Dict[str, bool] = None,
     ):
         """
         Offers the given model parameters to the server. Can only be called if
@@ -139,11 +138,19 @@ class GRPCCLient(object):
         # construct the FloesMessage
         weights = condecon.parameters_to_proto(params)
         msg = 'OK'
-        request = FloesMessage(
-            msg=msg, 
-            params=weights, 
-            timestamp=timestamp
-        )
+        if layers:
+            request = FloesMessage(
+                msg=msg, 
+                params=weights, 
+                timestamp=timestamp,
+                trainlayers=condecon.booldict_to_proto(layers)
+            )
+        else:
+            request = FloesMessage(
+                msg=msg, 
+                params=weights, 
+                timestamp=timestamp
+            )
 
         # contribute the model to the server
         response = stub.ContributeModel(request)

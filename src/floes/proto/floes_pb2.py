@@ -14,11 +14,12 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x66loes.proto\x12\x05\x66loes\"t\n\x0c\x46loesMessage\x12\x0b\n\x03msg\x18\x01 \x01(\t\x12&\n\x06params\x18\x02 \x01(\x0b\x32\x11.floes.ParametersH\x00\x88\x01\x01\x12\x16\n\ttimestamp\x18\x03 \x01(\tH\x01\x88\x01\x01\x42\t\n\x07_paramsB\x0c\n\n_timestamp\":\n\nParameters\x12\x0c\n\x04keys\x18\x01 \x03(\t\x12\x1e\n\x07weights\x18\x02 \x03(\x0b\x32\r.floes.Tensor\"%\n\x06Tensor\x12\r\n\x05shape\x18\x01 \x03(\x05\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x32\xc0\x01\n\x0c\x46loesService\x12\x36\n\x08GetModel\x12\x13.floes.FloesMessage\x1a\x13.floes.FloesMessage\"\x00\x12=\n\x0f\x43ontributeModel\x12\x13.floes.FloesMessage\x1a\x13.floes.FloesMessage\"\x00\x12\x39\n\tSubscribe\x12\x13.floes.FloesMessage\x1a\x13.floes.FloesMessage\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x66loes.proto\x12\x05\x66loes\"\xaf\x01\n\x0c\x46loesMessage\x12\x0b\n\x03msg\x18\x01 \x01(\t\x12&\n\x06params\x18\x02 \x01(\x0b\x32\x11.floes.ParametersH\x00\x88\x01\x01\x12\x16\n\ttimestamp\x18\x03 \x01(\tH\x01\x88\x01\x01\x12)\n\x0btrainlayers\x18\x04 \x01(\x0b\x32\x0f.floes.BoolDictH\x02\x88\x01\x01\x42\t\n\x07_paramsB\x0c\n\n_timestampB\x0e\n\x0c_trainlayers\"(\n\x08\x42oolDict\x12\x0c\n\x04keys\x18\x01 \x03(\t\x12\x0e\n\x06values\x18\x02 \x03(\x08\":\n\nParameters\x12\x0c\n\x04keys\x18\x01 \x03(\t\x12\x1e\n\x07weights\x18\x02 \x03(\x0b\x32\r.floes.Tensor\"%\n\x06Tensor\x12\r\n\x05shape\x18\x01 \x03(\x05\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x32\xc0\x01\n\x0c\x46loesService\x12\x36\n\x08GetModel\x12\x13.floes.FloesMessage\x1a\x13.floes.FloesMessage\"\x00\x12=\n\x0f\x43ontributeModel\x12\x13.floes.FloesMessage\x1a\x13.floes.FloesMessage\"\x00\x12\x39\n\tSubscribe\x12\x13.floes.FloesMessage\x1a\x13.floes.FloesMessage\"\x00\x30\x01\x62\x06proto3')
 
 
 
 _FLOESMESSAGE = DESCRIPTOR.message_types_by_name['FloesMessage']
+_BOOLDICT = DESCRIPTOR.message_types_by_name['BoolDict']
 _PARAMETERS = DESCRIPTOR.message_types_by_name['Parameters']
 _TENSOR = DESCRIPTOR.message_types_by_name['Tensor']
 FloesMessage = _reflection.GeneratedProtocolMessageType('FloesMessage', (_message.Message,), {
@@ -27,6 +28,13 @@ FloesMessage = _reflection.GeneratedProtocolMessageType('FloesMessage', (_messag
   # @@protoc_insertion_point(class_scope:floes.FloesMessage)
   })
 _sym_db.RegisterMessage(FloesMessage)
+
+BoolDict = _reflection.GeneratedProtocolMessageType('BoolDict', (_message.Message,), {
+  'DESCRIPTOR' : _BOOLDICT,
+  '__module__' : 'floes_pb2'
+  # @@protoc_insertion_point(class_scope:floes.BoolDict)
+  })
+_sym_db.RegisterMessage(BoolDict)
 
 Parameters = _reflection.GeneratedProtocolMessageType('Parameters', (_message.Message,), {
   'DESCRIPTOR' : _PARAMETERS,
@@ -46,12 +54,14 @@ _FLOESSERVICE = DESCRIPTOR.services_by_name['FloesService']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _FLOESMESSAGE._serialized_start=22
-  _FLOESMESSAGE._serialized_end=138
-  _PARAMETERS._serialized_start=140
-  _PARAMETERS._serialized_end=198
-  _TENSOR._serialized_start=200
-  _TENSOR._serialized_end=237
-  _FLOESSERVICE._serialized_start=240
-  _FLOESSERVICE._serialized_end=432
+  _FLOESMESSAGE._serialized_start=23
+  _FLOESMESSAGE._serialized_end=198
+  _BOOLDICT._serialized_start=200
+  _BOOLDICT._serialized_end=240
+  _PARAMETERS._serialized_start=242
+  _PARAMETERS._serialized_end=300
+  _TENSOR._serialized_start=302
+  _TENSOR._serialized_end=339
+  _FLOESSERVICE._serialized_start=342
+  _FLOESSERVICE._serialized_end=534
 # @@protoc_insertion_point(module_scope)

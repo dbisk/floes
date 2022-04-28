@@ -7,6 +7,8 @@ the server.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
+from typing import Union, Dict
+
 from floes.core.connection import ServerClientConnection
 from floes.proto.floes_pb2 import FloesMessage
 

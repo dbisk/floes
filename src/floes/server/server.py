@@ -84,6 +84,7 @@ class Server:
         """
 
         model_list = []
+        layers_list = []
         counter = 0
         
         while True:
@@ -92,7 +93,7 @@ class Server:
                 break
 
             try:
-                model, ts = self.model_queue.get(block=True, timeout=timeout)
+                model, ts, layers = self.model_queue.get(block=True, timeout=timeout)
             except queue.Empty:
                 # we exceeded our timeout
                 floes_logger.logger.write(
@@ -106,6 +107,7 @@ class Server:
             if ts == self.model_timestamp:
                 # we got a model back, so lets keep it in our model list
                 model_list.append(model)
+                layers_list.append(layers)
                 counter += 1
         
         # raise an error if we didn't get anything back
@@ -115,7 +117,7 @@ class Server:
             )
 
         # send the model list to our strategy
-        new_model = self._strategy.aggregate(model_list)
+        new_model = self._strategy.aggregate(model_list, layers_list=layers_list)
 
         # set the server model to the new model
         self.set_model(new_model)

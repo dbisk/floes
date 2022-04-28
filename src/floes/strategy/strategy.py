@@ -22,6 +22,8 @@ class Strategy(ABC):
     """
 
     @abstractmethod
-    def aggregate(self, parameters: List[FloesParameters]) -> FloesParameters:
+    def aggregate(
+        self, parameters: List[FloesParameters], **kwargs
+    ) -> FloesParameters:
         raise NotImplementedError
 

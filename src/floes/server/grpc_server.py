@@ -100,9 +100,11 @@ class FloesServiceServicer(floes_pb2_grpc.FloesServiceServicer):
         if ts == self.server.get_model_timestamp():
             # correct timestamp, let's deconstruct the message
             model = condecon.proto_to_parameters(request.params)
+            layers = condecon.proto_to_booldict(request.trainlayers)
+            layers = None if len(layers) < 1 else layers
 
             # add the model to the server's queue
-            self.server.model_queue.put((model, ts))
+            self.server.model_queue.put((model, ts, layers))
 
             # logging and response
             floes_logger.logger.write(
