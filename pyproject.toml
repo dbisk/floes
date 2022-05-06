@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "floes"
-version = "0.0.2"
+version = "0.0.3"
 description = ""
 authors = ["dbisk <16860792+dbisk@users.noreply.github.com>"]
 packages = [
