@@ -9,7 +9,7 @@ location.
 @email <dbiskup2@illinois.edu>
 @org University of Illinois, Urbana-Champaign Audio Group
 """
-from typing import Dict
+from typing import Dict, Tuple
 
 import grpc
 
@@ -18,6 +18,35 @@ from .client import Client
 from floes.proto.floes_pb2_grpc import FloesServiceStub
 
 MAX_MESSAGE_LENGTH = 536_870_912 # == 512 * 1024 * 1024
+
+
+def start_grpc_client(addr: str) -> Tuple[GRPCCLient, FloesServiceStub]:
+    """
+    Start a GRPC Client object to interact with the server at the given
+    address. The returned `FloesServiceStub` should be passed into all of the
+    GRPCClient's methods. The GRPCClient's methods will be called to interact
+    with the server.
+
+    Args:
+        addr: `str`
+            The address of the server. Usually an IP address + port. 
+    Returns:
+        Tuple of a started GRPC client object and the FloesServiceStub
+        associated with the connection.
+    """
+    # initialize the grpc client connection
+    grpc_client = GRPCCLient()
+
+    # start the connection to the server
+    channel = grpc.insecure_channel(
+        addr,
+        options=[
+            ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
+            ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
+        ]
+    )
+    stub = FloesServiceStub(channel)
+    return grpc_client, stub
 
 
 def start_client(client: Client, addr: str, **kwargs) -> Client:
@@ -63,17 +92,7 @@ def start_layerwise_client(
     """
 
     # initialize the grpc client connection
-    grpc_client = GRPCCLient()
-
-    # start the connection to the server
-    channel = grpc.insecure_channel(
-        addr,
-        options=[
-            ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
-            ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
-        ]
-    )
-    stub = FloesServiceStub(channel)
+    grpc_client, stub = start_grpc_client(addr)
 
     # register this client as a contributor
     server_message_iterator = grpc_client.register_as_contributor(stub)
