@@ -7,8 +7,6 @@ a simple network on the MNIST classification dataset.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
-from typing import Dict
-
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Subset
@@ -16,6 +14,8 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 
 import floes.client
+
+from torch_mnist_common import MNISTModel, evaluate_model
 
 
 class MNISTClient(floes.client.PyTorchClient):
@@ -59,56 +59,6 @@ class MNISTClient(floes.client.PyTorchClient):
                 count = count % 10 + 1
                 if count == 1:
                     tbatch.set_postfix_str(f'Loss: {loss.item():.3f}')
-        
-
-class MNISTModel(torch.nn.Module):
-    
-    def __init__(self):
-        super().__init__()
-        self.conv1 = torch.nn.Conv2d(1, 32, kernel_size=3)
-        self.relu = torch.nn.ReLU()
-        self.flatten = torch.nn.Flatten()
-        self.fc1 = torch.nn.Linear(32 * 26 * 26, 128)
-        self.fc2 = torch.nn.Linear(128, 10)
-
-    def forward(self, x):
-        x = self.relu(self.conv1(x))
-        x = self.flatten(x)
-        x = self.fc1(x)
-        return self.fc2(x)
-
-
-def evaluate_model(model: torch.nn.Module) -> Dict:
-    # load and prepare the MNIST test dataset
-    test_data = datasets.MNIST(
-        root='data',
-        train=False,
-        download=True,
-        transform=transforms.ToTensor()
-    )
-
-    test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    # define the loss function
-    criterion = torch.nn.CrossEntropyLoss()
-
-    # perform the evaluation loop
-    model.eval()
-    size = len(test_dataloader.dataset)
-    num_batches = len(test_dataloader)
-    test_loss, correct = 0, 0
-    with torch.no_grad():
-        for X, y in tqdm(test_dataloader):
-            X, y = X.to(device), y.to(device)
-            pred = model(X)
-            test_loss += criterion(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-    
-    test_loss /= num_batches
-    correct /= size
-
-    return {'accuracy': 100. * correct, 'loss': test_loss}
 
 
 def main():

@@ -1,6 +1,6 @@
 """
-torch_mnist_server.py - Implementation of a PyTorch Server using FLoES. Trains
-a simple network on the MNIST classification dataset.
+disjoint_server.py - An implementation of the federated server for training
+using clients that each have a disjoint subset of the MNIST training dataset.
 
 @author Dean Biskup
 @email <dbiskup2@illinois.edu>
