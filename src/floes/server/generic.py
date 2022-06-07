@@ -99,4 +99,5 @@ def start_server(
     if await_termination:
         server.wait_for_termination()
     else:
+        time.sleep(3)
         return servicer.server.get_model()
