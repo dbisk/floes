@@ -58,6 +58,7 @@ def evaluate_model(model: torch.nn.Module) -> Dict:
 
     test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
 
     # define the loss function
     criterion = torch.nn.CrossEntropyLoss()

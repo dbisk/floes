@@ -29,7 +29,10 @@ class MNISTClient(floes.client.PyTorchClient):
         super().__init__(MNISTModel())
         self.train_layers = train_layers
 
-    def train(self, train_dataloader: DataLoader, criterion: Callable, device: str):
+    def train(
+        self, train_dataloader: DataLoader, criterion: Callable, device: str,
+        evaluate: bool = False
+    ):
         """
         Performs one epoch of training.
 
@@ -41,6 +44,9 @@ class MNISTClient(floes.client.PyTorchClient):
             device: `str`
                 The device to train on. Either `cpu` or `cuda`.
         """
+        if evaluate:
+            print(evaluate_model(self.model))
+
         # set the model layers to be trainable based on initialization params
         for k, v in self.train_layers.items():
             for name, param in self.model.named_parameters():
@@ -69,9 +75,14 @@ class MNISTClient(floes.client.PyTorchClient):
                 count = count % 10 + 1
                 if count == 1:
                     tbatch.set_postfix_str(f'Loss: {loss.item():.3f}')
+        
+        # optional, but useful to see effect of aggregation
+        # evaluate the model at the end of this training round
+        if evaluate:
+            print(evaluate_model(self.model))
 
 
-def main(train_layer_index):
+def main(train_layer_index: int, addr: str, evaluate: bool):
     train_layers = {
         'conv1.weight': (train_layer_index == 0),
         'conv1.bias': (train_layer_index == 0),
@@ -99,24 +110,23 @@ def main(train_layer_index):
     # create the floes client
     client = MNISTClient(train_layers)
 
-    # set address information
-    address = 'localhost:50051'
-
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
     print("Awaiting signal from server to begin.")
     print(f"Configured to train layer(s): {train_layer_index}")
     trained_client = floes.client.start_layerwise_client(
-        client, address, train_layers, 
+        client, addr, train_layers, 
         train_dataloader=train_dataloader,
         criterion=criterion,
-        device=device
+        device=device,
+        evaluate=evaluate
     )
 
-    # for metrics, we can evaluate the final model on the client side
-    print("Server indicates training done. Evaluating new model...")
-    metrics = evaluate_model(trained_client.model)
-    print(metrics)
+    if evaluate:
+        # for metrics, we can evaluate the final model on the client side
+        print("Server indicates training done. Evaluating new model...")
+        metrics = evaluate_model(trained_client.model)
+        print(metrics)
 
 
 if __name__ == '__main__':
@@ -126,6 +136,14 @@ if __name__ == '__main__':
         help="The index of the layer in the network that will be trained.",
         type=int
     )
-    train_layer_index = parser.parse_args().train_layer_index
-    main(train_layer_index)
-
+    parser.add_argument(
+        '--evaluate',
+        action='store_true'
+    )
+    parser.add_argument(
+        '--addr',
+        type=str,
+        default='localhost:50051'
+    )
+    args = parser.parse_args()
+    main(args.train_layer_index, args.addr, args.evaluate)
