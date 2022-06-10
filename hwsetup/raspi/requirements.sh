@@ -11,6 +11,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install setuptools==58.3.0
 pip install Cython
+pip install torch
 
-# install floes (which installs grpc and torch)
-pip install floes-0.0.2-py3-none-any.whl
+# install floes (which installs grpc)
+pip install floes-0.0.3-py3-none-any.whl
