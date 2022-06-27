@@ -11,19 +11,22 @@ Efficient Networks for Universal Audio Source Separation". MLSP 2020.
 """
 
 import torch
+from floes.core.params import FloesParameters
 
 import floes.server
 import floes.strategy
 
-from sudormrf import SuDORMRF
+from groupcomm_sudormrf_v2 import GroupCommSudoRmRf
 
 
 def main():
     address = '[::]:50051'
 
     # create the model
-    model = SuDORMRF()
-    model = [val.cpu().numpy() for _, val in model.state_dict().items()]
+    model = GroupCommSudoRmRf()
+    model = FloesParameters(
+        {k: v.cpu().numpy() for k, v in model.state_dict().items()}
+    )
 
     # start the server
     # note: this never returns

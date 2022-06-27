@@ -14,12 +14,12 @@ import torch
 
 import floes.client
 
-from sudormrf import SuDORMRF
+from groupcomm_sudormrf_v2 import GroupCommSudoRmRf
 
 
 class SuDOClient(floes.client.PyTorchClient):
     
-    def __init__(self, model: SuDORMRF):
+    def __init__(self, model: GroupCommSudoRmRf):
         super().__init__(model)
     
     def set_device(self, device):
@@ -68,7 +68,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # create the client
-    client = SuDOClient(SuDORMRF())
+    client = SuDOClient(GroupCommSudoRmRf())
     client.set_device(device)
 
     # set address information
@@ -77,7 +77,7 @@ def main():
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
     print("Awaiting signal from server to begin")
-    trained_model = floes.client.start_torch_client(client, address)
+    trained_model = floes.client.start_client(client, address)
 
     # for metrics, just print them
     print("Server indicates training done. Evaluating new model...")
