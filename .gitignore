@@ -18,6 +18,7 @@ venv
 
 # Data directories
 data
+*.pkl
 
 # data files
 *.dat
