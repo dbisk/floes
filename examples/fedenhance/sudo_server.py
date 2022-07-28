@@ -10,6 +10,8 @@ Efficient Networks for Universal Audio Source Separation". MLSP 2020.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
+import argparse
+
 import torch
 from floes.core.params import FloesParameters
 
@@ -19,24 +21,46 @@ import floes.strategy
 from groupcomm_sudormrf_v2 import GroupCommSudoRmRf
 
 
-def main():
-    address = '[::]:50051'
-
+def main(args):
     # create the model
     model = GroupCommSudoRmRf()
-    model = FloesParameters(
+    params = FloesParameters(
         {k: v.cpu().numpy() for k, v in model.state_dict().items()}
     )
 
     # start the server
-    # note: this never returns
-    floes.server.start_server(
-        model,
-        address,
-        3,
-        floes.strategy.UnweightedFedAvg()
+    params = floes.server.start_server(
+        model=params,
+        address=args.address,
+        rounds=args.rounds,
+        strategy=floes.strategy.UnweightedFedAvg(),
+        await_termination=False
     )
 
+    # save the final model
+    state_dict = {k: torch.Tensor(v) for k, v in params.items()}
+    torch.save(state_dict, args.save_path)
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--address", "-a",
+        type=str,
+        default='[::]:50051',
+        help='The address the server will be broadcasting on.'
+    )
+    parser.add_argument(
+        "--rounds", "-r",
+        type=int,
+        default=3,
+        help="The number of federated learning rounds to run."
+    )
+    parser.add_argument(
+        '--save_path',
+        type=str,
+        default='tmp.pth',
+        help="The path to save the final global model to."
+    )
+
+    args = parser.parse_args()
+    main(args)
