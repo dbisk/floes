@@ -10,11 +10,13 @@ Efficient Networks for Universal Audio Source Separation". MLSP 2020.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
+import argparse
+
 import torch
 
 import floes.client
-
 from groupcomm_sudormrf_v2 import GroupCommSudoRmRf
+from sudo_common import evaluate_model
 
 
 class SuDOClient(floes.client.PyTorchClient):
@@ -52,19 +54,7 @@ class SuDOClient(floes.client.PyTorchClient):
         optimizer.step()
 
 
-def evaluate_model(model: torch.nn.Module):
-    """
-    This function does not evaluate the model in any performance terms. It only
-    determines whether the model outputs an appropriately shaped output.
-    """
-    model.eval()
-    random_input = torch.rand(3, 1, 8000)
-    estimated_sources = model(random_input)
-    out_shape = estimated_sources.shape
-    return {'output_shape': out_shape}
-
-
-def main():
+def main(args):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # create the client
@@ -72,7 +62,7 @@ def main():
     client.set_device(device)
 
     # set address information
-    address = 'localhost:50051'
+    address = args.address
 
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
@@ -86,4 +76,18 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--address",
+        type=str,
+        default="localhost:50051",
+        help="The address of the server to connect to."
+    )
+    parser.add_argument(
+        "--evaluate",
+        action='store_true',
+        help="Whether to evaluate the model after federated training is over."
+    )
+    
+    args = parser.parse_args()
+    main(args)
