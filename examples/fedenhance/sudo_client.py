@@ -152,10 +152,10 @@ def main(args):
         # additional training arguments TODO
         dataloader=dataloader,
         lr=0.001,
-        clip_grad_norm=0.0,
+        clip_grad_norm=5.0,
         is_supervised=False,
         bs=4,
-        p_single_mix=0.5
+        p_single_mix=0.0
     )
 
     # for metrics, just print them
