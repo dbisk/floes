@@ -70,7 +70,8 @@ class SuDOClient(floes.client.PyTorchClient):
                     input_noises[:, 1] = input_noises[:, 1] * zero_out_mask
                 else:
                     input_noises[:, 0] = input_noises[:, 0] * zero_out_mask
-                    input_active_speakers[:, 0] = input_active_speakers[:, 0] * zero_out_mask
+                    input_active_speakers[:, 0] = \
+                        input_active_speakers[:, 0] * zero_out_mask
                 
                 # send to gpu
                 input_active_speakers = input_active_speakers.to(self.device)
