@@ -133,6 +133,7 @@ class SuDOClient(floes.client.PyTorchClient):
 
 
 def main(args):
+    hparams = vars(args)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # create the client
@@ -143,14 +144,13 @@ def main(args):
     address = args.address
 
     # set the training arguments
-    dataloader = None # TODO
+    dataloader = dataset_loaders.client_loader(args.data_dir, False, hparams)
 
     # start the GRPC connection and client loop
     # this will continue until server indicates it is done
     print("Awaiting signal from server to begin")
     trained_model = floes.client.start_client(
         client, address,
-        # additional training arguments TODO
         dataloader=dataloader,
         lr=0.001,
         clip_grad_norm=5.0,
@@ -177,6 +177,12 @@ if __name__ == '__main__':
         "--evaluate",
         action='store_true',
         help="Whether to evaluate the model after federated training is over."
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        required=True,
+        help="The root directory path of the dataset."
     )
     
     args = parser.parse_args()
