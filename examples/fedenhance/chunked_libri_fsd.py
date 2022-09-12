@@ -18,13 +18,6 @@ from time import time
 EPS = 1e-8
 
 
-def normalize_tensor_wav(wav_tensor, eps=1e-8, std=None):
-    mean = wav_tensor.mean(-1, keepdim=True)
-    if std is None:
-        std = wav_tensor.std(-1, keepdim=True)
-    return (wav_tensor - mean) / (std + eps)
-
-
 class Dataset(torch.utils.data.Dataset, abstract_dataset.Dataset):
     """ Dataset class for WHAM source separation and speech enhancement tasks.
 
@@ -64,16 +57,9 @@ class Dataset(torch.utils.data.Dataset, abstract_dataset.Dataset):
 
         self.time_samples = int(self.sample_rate * self.timelength)
 
-        # If specific Speaker ids are given
-        self.speaker_ids = self.get_arg_and_check_validness(
-            'speaker_ids', known_type=list)
         # Create the indexing for the dataset.
         available_speaker_ids = os.listdir(self.dataset_dirpath)
-        sorted_speaker_ids_ints = sorted(map(int, available_speaker_ids))
-        available_speaker_ids_ints = sorted_speaker_ids_ints
-        if self.speaker_ids:
-            available_speaker_ids_ints = [
-                sorted_speaker_ids_ints[idx] for idx in self.speaker_ids]
+        available_speaker_ids_ints = sorted(map(int, available_speaker_ids))
 
         self.sources_paths = []
         self.extra_noise_paths = []
