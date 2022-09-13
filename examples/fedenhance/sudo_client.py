@@ -134,7 +134,8 @@ class SuDOClient(floes.client.PyTorchClient):
 
 def main(args):
     hparams = vars(args)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
 
     # create the client
     client = SuDOClient(GroupCommSudoRmRf())
@@ -155,7 +156,7 @@ def main(args):
         lr=0.001,
         clip_grad_norm=5.0,
         is_supervised=False,
-        bs=4,
+        bs=args.batch_size,
         p_single_mix=0.0
     )
 
@@ -179,10 +180,36 @@ if __name__ == '__main__':
         help="Whether to evaluate the model after federated training is over."
     )
     parser.add_argument(
-        "--data-dir",
+        "--data_dir",
         type=str,
         required=True,
         help="The root directory path of the dataset."
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=1,
+        help="Batch size."
+    )
+    parser.add_argument(
+        "--n_jobs",
+        type=int,
+        default=1
+    )
+    parser.add_argument(
+        "--audio_timelength",
+        type=float,
+        default=1.0
+    )
+    parser.add_argument(
+        "--available_speech_percentage",
+        type=float,
+        default=0.5
+    )
+    parser.add_argument(
+        "--fs",
+        type=float,
+        default=16000
     )
     
     args = parser.parse_args()

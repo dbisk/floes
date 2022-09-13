@@ -226,11 +226,11 @@ class GroupCommSudoRmRf(nn.Module):
                  in_audio_channels=1,
                  out_channels=256,
                  in_channels=512,
-                 num_blocks=16,
+                 num_blocks=8,
                  upsampling_depth=5,
-                 enc_kernel_size=21,
+                 enc_kernel_size=41,
                  enc_num_basis=512,
-                 num_sources=2,
+                 num_sources=3,
                  group_size=16):
         super(GroupCommSudoRmRf, self).__init__()
 
@@ -261,7 +261,7 @@ class GroupCommSudoRmRf(nn.Module):
                                  stride=enc_kernel_size // 2,
                                  padding=enc_kernel_size // 2,
                                  bias=False)
-        torch.nn.init.xavier_uniform(self.encoder.weight)
+        torch.nn.init.xavier_uniform_(self.encoder.weight)
 
         # Norm before the rest, and apply one more dense layer
         self.ln = GlobLN(enc_num_basis)
@@ -292,7 +292,7 @@ class GroupCommSudoRmRf(nn.Module):
             stride=enc_kernel_size // 2,
             padding=enc_kernel_size // 2,
             groups=1, bias=False)
-        torch.nn.init.xavier_uniform(self.decoder.weight)
+        torch.nn.init.xavier_uniform_(self.decoder.weight)
         self.mask_nl_class = nn.ReLU()
     # Forward pass
     def forward(self, input_wav):
