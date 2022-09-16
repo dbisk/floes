@@ -13,3 +13,4 @@ sudo -H pip3 install torch
 
 # install floes (which installs grpc)
 sudo -H pip3 install floes-0.0.3-py3-none-any.whl
+sudo -H pip3 install --upgrade numpy
