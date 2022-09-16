@@ -46,6 +46,7 @@ class SuDOClient(floes.client.PyTorchClient):
         
         # create local optimizer
         optimizer = torch.optim.Adam(self.model.parameters(), lr=kwargs['lr'])
+        self.model = self.model.to(self.device)
 
         # loop through the data
         with tqdm(kwargs['dataloader']) as pbar:
@@ -134,8 +135,7 @@ class SuDOClient(floes.client.PyTorchClient):
 
 def main(args):
     hparams = vars(args)
-    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # create the client
     client = SuDOClient(GroupCommSudoRmRf())
