@@ -63,7 +63,8 @@ def start_server(
     address: str,
     rounds: int,
     strategy: Strategy,
-    await_termination: bool = True
+    await_termination: bool = True,
+    client_timeout: int = None
 ) -> FloesParameters:
     # start the grpc server
     server, servicer = start_grpc_server(model, address, strategy)
@@ -89,7 +90,7 @@ def start_server(
         servicer.server.broadcast(FloesMessage(msg='Subscribe:NEW_AVAILABLE'))
 
         # wait for the clients to respond with their updated models
-        servicer.server.source_model_from_clients(timeout=600)
+        servicer.server.source_model_from_clients(timeout=client_timeout)
 
     # broadcast a new model available to the clients one more time and notify
     # that the server is done.
