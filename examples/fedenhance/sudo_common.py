@@ -10,11 +10,16 @@ import copy
 from typing import Dict
 
 import torch
+from tqdm import tqdm
 
 import asteroid_sdr as asteroid_sdr_lib
+import dataset_loaders
+import mixture_consistency
+import sisdr
 
 
-def evaluate_model(model: torch.nn.Module) -> Dict:
+
+def fake_evaluate_model(model: torch.nn.Module) -> Dict:
     """
     This function currently does not evaluate the model in any performance
     terms. It only determines whether the model outputs an appropriately shaped
@@ -25,13 +30,85 @@ def evaluate_model(model: torch.nn.Module) -> Dict:
             The trained model to evaluate.
     Returns:
         Dict
-            Dictionary of relevant evaluation metrics
+            Dictionary of relevant evaluation metrics.
     """
     model.eval()
     random_input = torch.rand(3, 1, 8000)
     estimated_sources = model(random_input)
     out_shape = estimated_sources.shape
     return {'output_shape': out_shape}
+
+
+def evaluate_model(
+    model: torch.nn.Module,
+    test_data_dir: str,
+    hparams
+) -> Dict:
+    """
+    Evaluates the given model on the provided test LibriFSD50K dataset.
+
+    Args:
+        model: `torch.nn.Module`
+            The trained model to evaluate.
+        test_data_dir: `str`
+            The path to the test data directory.
+        hparams: `dict`
+            Parameters needed for evaluation, mainly batch size.
+    Returns:
+        Dict
+            Dictionary of relevant evaluation metrics.
+    """
+    results = {'acc': []}
+    model = model.to('cpu')
+    model.eval()
+
+    dataloader = dataset_loaders.test_loader(test_data_dir, hparams)
+
+    bs_or_1 = max(1, hparams['batch_size']//2)
+
+    with torch.no_grad():
+        with tqdm(dataloader) as pbar:
+            for cnt, data in enumerate(pbar):
+                input_active_speakers, noise_wavs, extra_noise_wavs = data
+                input_active_speakers = input_active_speakers.unsqueeze(1)
+                input_noises = torch.stack([noise_wavs, extra_noise_wavs], 1)
+                
+                # Create a mask for zeroing out the second mixture for
+                # enhancement with 1 source (half the examples).
+                zero_out_mask = torch.ones([hparams['batch_size'], 1],
+                                           dtype=torch.float32)
+                zero_out_mask[bs_or_1:] = 0.
+                input_noises[:, 1] *= zero_out_mask
+
+                input_mom = input_active_speakers.sum(1, keepdim=True) + input_noises.sum(1, keepdim=True)
+
+                input_mix_std = input_mom.std(-1, keepdim=True)
+                input_mix_mean = input_mom.mean(-1, keepdim=True)
+                input_mom = (input_mom - input_mix_mean) / (input_mix_std + 1e-9)
+
+                rec_sources_wavs = model(input_mom)
+                rec_sources_wavs = mixture_consistency.apply(
+                    rec_sources_wavs, input_mom
+                )
+                
+                loss_fn = sisdr.StabilizedPermInvSISDRMetric(
+                    zero_mean=True,
+                    single_source=False,
+                    n_estimated_sources=1,
+                    n_actual_sources=1,
+                    backward_loss=False,
+                    improvement=True,
+                    return_individual_results=True
+                )
+                l, best_perm = loss_fn(
+                    rec_sources_wavs[:bs_or_1, :1],
+                    input_active_speakers[:bs_or_1],
+                    return_best_permutation=True,
+                    initial_mixtures=input_mom[:bs_or_1]
+                )
+                results['acc'] += filter(lambda v: v == v, l.tolist())
+    
+    return results
 
 
 def fake_train_one_sample(model: torch.nn.Module, device = 'cpu'):

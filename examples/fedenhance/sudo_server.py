@@ -11,6 +11,7 @@ Efficient Networks for Universal Audio Source Separation". MLSP 2020.
 """
 
 import argparse
+import os
 
 import torch
 from floes.core.params import FloesParameters
@@ -34,12 +35,13 @@ def main(args):
         address=args.address,
         rounds=args.rounds,
         strategy=floes.strategy.UnweightedFedAvg(),
-        await_termination=False
+        await_termination=False,
+        save_dir=args.save_model_dir
     )
 
     # save the final model
     state_dict = {k: torch.Tensor(v) for k, v in params.items()}
-    torch.save(state_dict, args.save_path)
+    torch.save(state_dict, os.path.join(args.save_model_dir, 'final_model_sd.pth'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -56,10 +58,10 @@ if __name__ == '__main__':
         help="The number of federated learning rounds to run."
     )
     parser.add_argument(
-        '--save_path',
+        '--save_model_dir',
         type=str,
-        default='tmp.pth',
-        help="The path to save the final global model to."
+        default='.',
+        help="The directory to save the models from each FL round to."
     )
 
     args = parser.parse_args()

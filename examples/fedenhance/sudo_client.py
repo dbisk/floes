@@ -15,7 +15,6 @@ import argparse
 import torch
 from tqdm import tqdm
 
-import asteroid_sdr as asteroid_sdr_lib
 import mixture_consistency
 import dataset_loaders
 import floes.client
@@ -47,6 +46,7 @@ class SuDOClient(floes.client.PyTorchClient):
         # create local optimizer
         optimizer = torch.optim.Adam(self.model.parameters(), lr=kwargs['lr'])
         self.model = self.model.to(self.device)
+        self.model.train()
 
         # loop through the data
         with tqdm(kwargs['dataloader']) as pbar:
@@ -128,7 +128,7 @@ class SuDOClient(floes.client.PyTorchClient):
                 if cnt % 10 == 0:
                     # update pbar
                     pbar.set_description_str(
-                        f'Avg loss: {local_loss_sum / (cnt + 1)}.'
+                        f'Avg loss: {local_loss_sum / (cnt + 1):.4f}.'
                     )
         return
 
@@ -144,7 +144,7 @@ def main(args):
     # set address information
     address = args.address
 
-    # set the training arguments
+    # get the dataloader
     dataloader = dataset_loaders.client_loader(args.data_dir, False, hparams)
 
     # start the GRPC connection and client loop
@@ -161,9 +161,7 @@ def main(args):
     )
 
     # for metrics, just print them
-    print("Server indicates training done. Evaluating new model...")
-    metrics = evaluate_model(trained_model.model.to('cpu'))
-    print(metrics)
+    print("Server indicates training done!")
 
 
 if __name__ == '__main__':
@@ -175,11 +173,6 @@ if __name__ == '__main__':
         help="The address of the server to connect to."
     )
     parser.add_argument(
-        "--evaluate",
-        action='store_true',
-        help="Whether to evaluate the model after federated training is over."
-    )
-    parser.add_argument(
         "--data_dir",
         type=str,
         required=True,
@@ -188,7 +181,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=1,
+        default=2,
         help="Batch size."
     )
     parser.add_argument(

@@ -12,6 +12,8 @@ either renamed or moved to a different location.
 
 from concurrent import futures
 import logging
+import os
+import pickle
 import time
 from typing import List
 
@@ -64,7 +66,8 @@ def start_server(
     rounds: int,
     strategy: Strategy,
     await_termination: bool = True,
-    client_timeout: int = None
+    client_timeout: int = None,
+    save_dir: str = None
 ) -> FloesParameters:
     # start the grpc server
     server, servicer = start_grpc_server(model, address, strategy)
@@ -91,6 +94,11 @@ def start_server(
 
         # wait for the clients to respond with their updated models
         servicer.server.source_model_from_clients(timeout=client_timeout)
+
+        # save the model if option is set
+        if save_dir:
+            with open(os.path.join(save_dir, f'checkpoint{i}.pkl')) as f:
+                pickle.dump(servicer.server.get_model(), f)
 
     # broadcast a new model available to the clients one more time and notify
     # that the server is done.
