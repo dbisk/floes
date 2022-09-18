@@ -63,6 +63,18 @@ if __name__ == '__main__':
         default='.',
         help="The directory to save the models from each FL round to."
     )
+    parser.add_argument(
+        '--min_clients',
+        type=int,
+        default=2,
+        help="The minimum number of clients before a federated round begins."
+    )
+    parser.add_argument(
+        '--max_clients',
+        type=int,
+        default=100,
+        help="The maximum number of clients the federated server will accept."
+    )
 
     args = parser.parse_args()
     main(args)
