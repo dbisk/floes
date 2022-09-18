@@ -34,7 +34,9 @@ def start_grpc_server(
     model: FloesParameters, 
     address: str,
     strategy: Strategy,
-    options: List = None
+    options: List = None,
+    min_clients: int = 2,
+    max_clients: int = 100
 ):
     if options is None:
         options=[
@@ -43,7 +45,7 @@ def start_grpc_server(
             ("grpc.http2.max_pings_without_data", 0)
         ]
     
-    servicer = FloesServiceServicer()
+    servicer = FloesServiceServicer(min_clients=min_clients, max_clients=max_clients)
     servicer.server.set_model(model)
     servicer.server.set_strategy(strategy)
 
@@ -67,13 +69,19 @@ def start_server(
     strategy: Strategy,
     await_termination: bool = True,
     client_timeout: int = None,
-    save_dir: str = None
+    save_dir: str = None,
+    min_clients: int = 2,
+    max_clients: int = 100
 ) -> FloesParameters:
     # start the grpc server
-    server, servicer = start_grpc_server(model, address, strategy)
+    server, servicer = start_grpc_server(
+        model, address, strategy,
+        min_clients=min_clients,
+        max_clients=max_clients
+    )
 
     floes_logger.logger.write(
-        'Server started. Awaiting minimum number of clients to start rounds.',
+        f'Server started. Awaiting minimum number of clients ({min_clients}) to start rounds.',
         logging.INFO
     )
 

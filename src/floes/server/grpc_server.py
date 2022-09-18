@@ -47,8 +47,10 @@ def _register_client(
 
 class FloesServiceServicer(floes_pb2_grpc.FloesServiceServicer):
     
-    def __init__(self):
-        self.server = Server()
+    def __init__(self, **kwargs):
+        min_clients = kwargs['min_clients'] if 'min_clients' in kwargs else 2
+        max_clients = kwargs['max_clients'] if 'max_clients' in kwargs else 100
+        self.server = Server(max_clients=max_clients, min_clients=min_clients)
     
     def GetModel(
         self,
