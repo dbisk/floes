@@ -97,7 +97,7 @@ def start_server(
 
         # save the model if option is set
         if save_dir:
-            with open(os.path.join(save_dir, f'checkpoint{i}.pkl')) as f:
+            with open(os.path.join(save_dir, f'checkpoint{i}.pkl'), 'wb') as f:
                 pickle.dump(servicer.server.get_model(), f)
 
     # broadcast a new model available to the clients one more time and notify
