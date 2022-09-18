@@ -50,7 +50,7 @@ def start_grpc_server(
     servicer.server.set_strategy(strategy)
 
     server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=10),
+        futures.ThreadPoolExecutor(max_workers=max_clients),
         options=options
     )
     floes_pb2_grpc.add_FloesServiceServicer_to_server(
