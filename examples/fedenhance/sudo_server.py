@@ -36,7 +36,9 @@ def main(args):
         rounds=args.rounds,
         strategy=floes.strategy.UnweightedFedAvg(),
         await_termination=False,
-        save_dir=args.save_model_dir
+        save_dir=args.save_model_dir,
+        min_clients=args.min_clients,
+        max_clients=args.max_clients
     )
 
     # save the final model
