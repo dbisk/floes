@@ -11,7 +11,7 @@ echo "Found $TOTAL_CUDA_DEVICES CUDA GPUs."
 
 trap 'kill 0' SIGINT
 for (( i = 0; i < $1; i++ )); do
-    CUDA_DEVICE=$(( $1 %  $TOTAL_CUDA_DEVICES ))
+    CUDA_DEVICE=$(( $i %  $TOTAL_CUDA_DEVICES ))
     CUDA_VISIBLE_DEVICES=$CUDA_DEVICE poetry run python sudo_client.py --data_dir ${2%/}/client$i ${@:3} &
 
     sleep 1
