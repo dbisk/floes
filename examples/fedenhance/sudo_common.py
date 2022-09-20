@@ -42,7 +42,8 @@ def fake_evaluate_model(model: torch.nn.Module) -> Dict:
 def evaluate_model(
     model: torch.nn.Module,
     test_data_dir: str,
-    hparams
+    hparams,
+    device: str = 'cpu'
 ) -> Dict:
     """
     Evaluates the given model on the provided test LibriFSD50K dataset.
@@ -59,7 +60,7 @@ def evaluate_model(
             Dictionary of relevant evaluation metrics.
     """
     results = {'acc': []}
-    model = model.to('cpu')
+    model = model.to(device)
     model.eval()
 
     dataloader = dataset_loaders.test_loader(test_data_dir, hparams)
@@ -80,7 +81,12 @@ def evaluate_model(
                 zero_out_mask[bs_or_1:] = 0.
                 input_noises[:, 1] *= zero_out_mask
 
+                # send to gpu
+                input_active_speakers = input_active_speakers.to(device)
+                input_noises = input_noises.to(device)
+
                 input_mom = input_active_speakers.sum(1, keepdim=True) + input_noises.sum(1, keepdim=True)
+                input_mom = input_mom.to(device)
 
                 input_mix_std = input_mom.std(-1, keepdim=True)
                 input_mix_mean = input_mom.mean(-1, keepdim=True)
