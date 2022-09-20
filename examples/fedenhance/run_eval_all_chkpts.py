@@ -26,7 +26,7 @@ def main(args):
         if chkpt_path[-4:] == '.pkl':
             # retrieve model
             model = GroupCommSudoRmRf()
-            with open(chkpt_path, 'rb') as f:
+            with open(os.path.join(hparams['checkpoint_dir'], chkpt_path), 'rb') as f:
                 params = pickle.load(f)
             state_dict = {k: torch.Tensor(v) for k, v in params.items()}
             model.load_state_dict(state_dict)
