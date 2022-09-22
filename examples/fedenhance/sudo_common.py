@@ -9,6 +9,7 @@ sudo_common.py - Common functions between the SuDO-RM-RF clients and server.
 import copy
 from typing import Dict
 
+import numpy as np
 import torch
 from tqdm import tqdm
 
@@ -114,6 +115,7 @@ def evaluate_model(
                 )
                 results['acc'] += filter(lambda v: v == v, l.tolist())
     
+    results['acc'] = np.mean(results['acc'])
     return results
 
 
