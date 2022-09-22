@@ -48,6 +48,9 @@ class SuDOClient(floes.client.PyTorchClient):
         self.model = self.model.to(self.device)
         self.model.train()
 
+        # local stats
+        local_loss_sum = 0
+
         # loop through the data
         with tqdm(kwargs['dataloader']) as pbar:
             for cnt, data in enumerate(pbar):
@@ -123,7 +126,7 @@ class SuDOClient(floes.client.PyTorchClient):
                 optimizer.step()
 
                 # statistics
-                local_loss_sum = loss_fn.detach().item()
+                local_loss_sum += loss_fn.detach().item()
 
                 if cnt % 10 == 0:
                     # update pbar
