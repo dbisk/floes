@@ -14,7 +14,7 @@ from Non-IID Data. WASPAA 2021. https://arxiv.org/abs/2105.04727.
 
 The entry points to this example are through `sudo_client.py` and
 `sudo_server.py`. For default settings replicating the setup described in [1]:
-```python
+```bash
 python sudo_server.py --address ADDRESS_TO_EXPOSE --rounds NUMBER_OF_FEDERATED_ROUNDS \
     --min_clients MINIMUM_CLIENTS_ALLOWED_TO_CONNECT \
     --max_clients MAXIMUM_CLIENTS_ALLOWED_TO_CONNECT
@@ -24,7 +24,7 @@ python sudo_server.py --address ADDRESS_TO_EXPOSE --rounds NUMBER_OF_FEDERATED_R
 
 The client script can be run on clients such as PCs, Raspberry Pis, and NVIDIA
 Jetson Nanos. For default settings:
-```python
+```bash
 python sudo_client.py --data_dir PATH_TO_LIBRIFSD50K_DATA --address ADDRESS_OF_SERVER
 ```
 To run all clients on a single machine, a convenience script
