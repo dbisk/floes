@@ -184,7 +184,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=2,
+        default=1,
         help="Batch size."
     )
     parser.add_argument(
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--audio_timelength",
         type=float,
-        default=1.0
+        default=4.0
     )
     parser.add_argument(
         "--available_speech_percentage",
