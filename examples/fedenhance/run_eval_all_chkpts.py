@@ -24,6 +24,9 @@ def main(args):
     results_list = []
     for chkpt_path in os.listdir(hparams['checkpoint_dir']):
         if chkpt_path[-4:] == '.pkl':
+            # get the learning round number
+            chkpt_number = int(chkpt_path[10:-4])
+
             # retrieve model
             model = GroupCommSudoRmRf()
             with open(os.path.join(hparams['checkpoint_dir'], chkpt_path), 'rb') as f:
@@ -33,7 +36,7 @@ def main(args):
 
             # perform evaluation
             results_list.append(
-                evaluate_model(model, hparams['data_dir'], hparams, device)
+                (chkpt_number, evaluate_model(model, hparams['data_dir'], hparams, device))
             )
     
     with open(hparams['save_path'], 'wb') as f:
