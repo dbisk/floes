@@ -12,6 +12,12 @@ on [NVIDIA's website](https://developer.nvidia.com/embedded/learn/get-started-je
 Once the Jetson Nano is set up with the provided image, we can install our
 deep learning libraries.
 
+Note: you may want to update your system with
+```
+$ sudo apt update
+$ sudo apt upgrade
+```
+
 ## Installing PyTorch
 
 PyTorch can be installed via wheel from the
