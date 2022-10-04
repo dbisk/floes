@@ -51,13 +51,13 @@ if __name__ == '__main__':
     parser.add_argument(
         "--address", "-a",
         type=str,
-        default='[::]:50051',
+        default='0.0.0.0:50051',
         help='The address the server will be broadcasting on.'
     )
     parser.add_argument(
         "--rounds", "-r",
         type=int,
-        default=3,
+        default=100,
         help="The number of federated learning rounds to run."
     )
     parser.add_argument(
