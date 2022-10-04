@@ -43,7 +43,8 @@ def main(args):
 
     # save the final model
     state_dict = {k: torch.Tensor(v) for k, v in params.items()}
-    torch.save(state_dict, os.path.join(args.save_model_dir, 'final_model_sd.pth'))
+    if args.save_model_dir:
+        torch.save(state_dict, os.path.join(args.save_model_dir, 'final_model_sd.pth'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--save_model_dir',
         type=str,
-        default='.',
+        default=None,
         help="The directory to save the models from each FL round to."
     )
     parser.add_argument(
