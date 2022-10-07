@@ -1,8 +1,12 @@
 """
-dataset_loaders.py - 
+dataset_loaders.py - utility functions for creating the torch dataloaders for
+the LibriFSD50K dataset.
+
+@author Dean Biskup
+@email <dbiskup2@illinois.edu>
+@org University of Illinois, Urbana-Champaign Audio Group
 """
 
-import os
 import chunked_libri_fsd
 
 
