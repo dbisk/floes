@@ -12,6 +12,8 @@ either renamed or moved to a different location.
 
 from concurrent import futures
 import logging
+import os
+import pickle
 import time
 from typing import List
 
@@ -32,7 +34,9 @@ def start_grpc_server(
     model: FloesParameters, 
     address: str,
     strategy: Strategy,
-    options: List = None
+    options: List = None,
+    min_clients: int = 2,
+    max_clients: int = 100
 ):
     if options is None:
         options=[
@@ -41,12 +45,12 @@ def start_grpc_server(
             ("grpc.http2.max_pings_without_data", 0)
         ]
     
-    servicer = FloesServiceServicer()
+    servicer = FloesServiceServicer(min_clients=min_clients, max_clients=max_clients)
     servicer.server.set_model(model)
     servicer.server.set_strategy(strategy)
 
     server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=10),
+        futures.ThreadPoolExecutor(max_workers=max_clients),
         options=options
     )
     floes_pb2_grpc.add_FloesServiceServicer_to_server(
@@ -63,13 +67,21 @@ def start_server(
     address: str,
     rounds: int,
     strategy: Strategy,
-    await_termination: bool = True
+    await_termination: bool = True,
+    client_timeout: int = None,
+    save_dir: str = None,
+    min_clients: int = 2,
+    max_clients: int = 100
 ) -> FloesParameters:
     # start the grpc server
-    server, servicer = start_grpc_server(model, address, strategy)
+    server, servicer = start_grpc_server(
+        model, address, strategy,
+        min_clients=min_clients,
+        max_clients=max_clients
+    )
 
     floes_logger.logger.write(
-        'Server started. Awaiting minimum number of clients to start rounds.',
+        f'Server started. Awaiting minimum number of clients ({min_clients}) to start rounds.',
         logging.INFO
     )
 
@@ -89,7 +101,12 @@ def start_server(
         servicer.server.broadcast(FloesMessage(msg='Subscribe:NEW_AVAILABLE'))
 
         # wait for the clients to respond with their updated models
-        servicer.server.source_model_from_clients(timeout=600)
+        servicer.server.source_model_from_clients(timeout=client_timeout)
+
+        # save the model if option is set
+        if save_dir:
+            with open(os.path.join(save_dir, f'checkpoint{i}.pkl'), 'wb') as f:
+                pickle.dump(servicer.server.get_model(), f)
 
     # broadcast a new model available to the clients one more time and notify
     # that the server is done.

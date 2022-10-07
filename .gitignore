@@ -23,5 +23,8 @@ data
 # data files
 *.dat
 
+# pytorch models
+*.pth
+
 # mac file structure
 .DS_STORE

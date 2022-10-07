@@ -8,7 +8,13 @@ After setting up the Raspberry Pi through the normal steps, then simply `scp`
 or `wget` the `floes` wheel and the `requirements.sh` in this folder to the
 home directory of the Pi. Then simply execute the script:
 ```
-bash requirements.sh
+$ bash requirements.sh
 ```
 which should install everything necessary to run FLoES on the Raspberry Pi.
+
+Note: you may want to first update your system with
+```
+$ sudo apt update
+$ sudo apt upgrade
+```
 
