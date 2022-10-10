@@ -46,7 +46,7 @@ class MicrophoneDataset(torch.utils.data.Dataset):
             `DataLoader`
                 The torch dataloader generating samples using this dataset.
         """
-        return torch.utils.data.DataLoader(self, num_workers=1)
+        return torch.utils.data.DataLoader(self)
     
     def __len__(self):
         return self.total_samples
