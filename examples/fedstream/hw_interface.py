@@ -9,6 +9,7 @@ arrays on the Raspberry Pi. This is used to get live speech data.
 
 import numpy as np
 import sounddevice as sd
+import webrtcvad
 
 
 def record_audio(
@@ -36,3 +37,23 @@ def record_audio(
     # rec runs in background, but we need to wait until recording is finished
     sd.wait()
     return arr.flatten().astype(np.float32)
+
+
+def block_until_voice_detected(sample_rate: int):
+    vad = webrtcvad.Vad(1)
+    sample = sd.rec(
+        int(30. / 1000 * sample_rate),
+        samplerate=sample_rate,
+        channels=1
+    )
+    sd.wait()
+    sample = sample.flatten().astype(np.float32)
+    
+    while not vad.is_speech(sample.tobytes(), sample_rate):
+        sample = sd.rec(
+            int(30. / 1000 * sample_rate),
+            samplerate=sample_rate,
+            channels=1
+        )
+        sd.wait()
+        sample = sample.flatten().astype(np.float32)

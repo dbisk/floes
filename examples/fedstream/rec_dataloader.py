@@ -33,7 +33,10 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
         meta_args: `dict`
             Dictionary of keyword arguments to be passed into `rec_fn`.
     """
-    def __init__(self, total_samples: int, rec_fn: Callable, meta_args: Dict):
+    def __init__(
+        self, total_samples: int, rec_fn: Callable, meta_args: Dict,
+        voice_only: bool = False
+    ):
         super().__init__()
         self.rec_fn = rec_fn
         self.meta_args = meta_args
@@ -44,9 +47,13 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
         self.noise_2 = np.load(
             os.path.join(Path(__file__).parent, 'noise_4s_2.npy')
         )
+        self.voice_only = voice_only
 
     def __iter__(self):
         for i in range(self.total_samples):
+            if self.voice_only:
+                # kind of bad code practice here - using assumed 'fs' dict key
+                hw_interface.block_until_voice_detected(self.meta_args['fs'])
             rtn = (
                 torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
                 torch.tensor(self.noise_1),
