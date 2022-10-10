@@ -52,8 +52,8 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
     def __iter__(self):
         for i in range(self.total_samples):
             if self.voice_only:
-                # kind of bad code practice here - using assumed 'fs' dict key
-                hw_interface.block_until_voice_detected(self.meta_args['fs'])
+                # kind of bad code practice here - using assumed 'sample_rate' dict key
+                hw_interface.block_until_voice_detected(self.meta_args['sample_rate'])
             rtn = (
                 torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
                 torch.tensor(self.noise_1),
