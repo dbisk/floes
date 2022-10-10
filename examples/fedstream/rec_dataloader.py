@@ -98,4 +98,4 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
             'length': length,
             'channels': channels,
         }
-        return cls(total_samples, hw_interface.record_audio, meta_args)
+        return cls(total_samples, hw_interface.record_audio, meta_args, voice_only=True)
