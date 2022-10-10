@@ -14,7 +14,7 @@ import torch.utils.data
 import hw_interface
 
 
-class MicrophoneDataset(torch.utils.data.Dataset):
+class MicrophoneDataset(torch.utils.data.IterableDataset):
     """
     Dataset class for recording a small snippet from the microphone for speech
     enhancement tasks.
@@ -30,12 +30,13 @@ class MicrophoneDataset(torch.utils.data.Dataset):
             Dictionary of keyword arguments to be passed into `rec_fn`.
     """
     def __init__(self, total_samples: int, rec_fn: Callable, meta_args: Dict):
+        super().__init__()
         self.rec_fn = rec_fn
         self.meta_args = meta_args
         self.total_samples = total_samples
 
-    def __getitem__(self, idx):
-        return self.rec_fn(**self.meta_args)
+    def __iter__(self):
+        yield self.rec_fn(**self.meta_args)
 
     def get_generator(self) -> torch.utils.data.DataLoader:
         """
