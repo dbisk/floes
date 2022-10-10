@@ -7,8 +7,12 @@ audio snippet as the next data sample.
 @org University of Illinois, Urbana-Champaign Audio Group
 """
 
+import os
+from pathlib import Path
 from typing import Callable, Dict
 
+import numpy as np
+import torch
 import torch.utils.data
 
 import hw_interface
@@ -34,9 +38,14 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
         self.rec_fn = rec_fn
         self.meta_args = meta_args
         self.total_samples = total_samples
+        self.noise = os.path.join(Path(__file__).parent, 'noise_4s.npy')
 
     def __iter__(self):
-        yield self.rec_fn(**self.meta_args)
+        rtn = (
+            torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
+            torch.tensor(self.noise)
+        )
+        yield rtn
 
     def get_generator(self) -> torch.utils.data.DataLoader:
         """
