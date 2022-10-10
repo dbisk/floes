@@ -46,12 +46,13 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
         )
 
     def __iter__(self):
-        rtn = (
-            torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
-            torch.tensor(self.noise_1),
-            torch.tensor(self.noise_2)
-        )
-        yield rtn
+        for i in range(self.total_samples):
+            rtn = (
+                torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
+                torch.tensor(self.noise_1),
+                torch.tensor(self.noise_2)
+            )
+            yield rtn
 
     def get_generator(self) -> torch.utils.data.DataLoader:
         """
