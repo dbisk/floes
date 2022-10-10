@@ -38,14 +38,18 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
         self.rec_fn = rec_fn
         self.meta_args = meta_args
         self.total_samples = total_samples
-        self.noise = np.load(
-            os.path.join(Path(__file__).parent, 'noise_4s.npy')
+        self.noise_1 = np.load(
+            os.path.join(Path(__file__).parent, 'noise_4s_1.npy')
+        )
+        self.noise_2 = np.load(
+            os.path.join(Path(__file__).parent, 'noise_4s_2.npy')
         )
 
     def __iter__(self):
         rtn = (
             torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
-            torch.tensor(self.noise)
+            torch.tensor(self.noise_1),
+            torch.tensor(self.noise_2)
         )
         yield rtn
 

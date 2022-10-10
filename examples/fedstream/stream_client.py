@@ -99,8 +99,9 @@ class SuDOClient(floes.client.PyTorchClient):
                 # data format:
                 # <speech> (batch, time_samples),
                 # <noise> (batch, time_samples)
-                input_active_speakers, input_noises = data
+                input_active_speakers, noise_wavs, extra_noise_waves = data
                 input_active_speakers = input_active_speakers.unsqueeze(1)
+                input_noises = torch.stack([noise_wavs, extra_noise_waves], 1)
                 
                 # send to gpu
                 input_active_speakers = input_active_speakers.to(self.device)
