@@ -52,7 +52,7 @@ class MicrophoneDataset(torch.utils.data.Dataset):
         return self.total_samples
 
     @classmethod
-    def get_default(cls, length: float, fs: int, channels: int = 1) -> 'MicrophoneDataset':
+    def get_default(cls, total_samples: int, length: float, fs: int, channels: int = 1) -> 'MicrophoneDataset':
         """
         Creates a default instance of this class, used on Raspberry Pis using
         the `sounddevice` python library. 
@@ -74,4 +74,4 @@ class MicrophoneDataset(torch.utils.data.Dataset):
             'length': length,
             'channels': channels,
         }
-        return cls(hw_interface.record_audio, meta_args)
+        return cls(total_samples, hw_interface.record_audio, meta_args)
