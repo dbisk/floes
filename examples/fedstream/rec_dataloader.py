@@ -35,6 +35,7 @@ class MicrophoneDataset(torch.utils.data.Dataset):
         self.total_samples = total_samples
 
     def __getitem__(self, idx):
+        print(f"getting index {idx}")
         return self.rec_fn(**self.meta_args)
 
     def get_generator(self) -> torch.utils.data.DataLoader:
