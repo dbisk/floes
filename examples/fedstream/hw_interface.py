@@ -45,7 +45,7 @@ def block_until_voice_detected(sample_rate: int):
         int(30. / 1000 * sample_rate),
         samplerate=sample_rate,
         channels=1,
-        dtype='int32',
+        dtype='int16',
         blocking=True
     )
     sample = sample.flatten()
@@ -55,7 +55,7 @@ def block_until_voice_detected(sample_rate: int):
             int(30. / 1000 * sample_rate),
             samplerate=sample_rate,
             channels=1,
-            dtype='int32',
+            dtype='int16',
             blocking=True
         )
         sample = sample.flatten()
