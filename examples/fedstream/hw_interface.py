@@ -32,10 +32,9 @@ def record_audio(
     arr = sd.rec(
         int(length * sample_rate),
         samplerate=sample_rate,
-        channels=channels
+        channels=channels,
+        blocking=True
     )
-    # rec runs in background, but we need to wait until recording is finished
-    sd.wait()
     return arr.flatten().astype(np.float32)
 
 
