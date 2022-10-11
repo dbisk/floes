@@ -18,6 +18,13 @@ import torch.utils.data
 import hw_interface
 
 
+def normalize_tensor_wav(wav_tensor, eps=1e-8, std=None):
+    mean = wav_tensor.mean(-1, keepdim=True)
+    if std is None:
+        std = wav_tensor.std(-1, keepdim=True)
+    return (wav_tensor - mean) / (std + eps)
+
+
 class MicrophoneDataset(torch.utils.data.IterableDataset):
     """
     Dataset class for recording a small snippet from the microphone for speech
@@ -55,9 +62,9 @@ class MicrophoneDataset(torch.utils.data.IterableDataset):
                 # kind of bad code practice here - using assumed 'sample_rate' dict key
                 hw_interface.block_until_voice_detected(self.meta_args['sample_rate'])
             rtn = (
-                torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32),
-                torch.tensor(self.noise_1),
-                torch.tensor(self.noise_2)
+                normalize_tensor_wav(torch.tensor(self.rec_fn(**self.meta_args), dtype=torch.float32)),
+                normalize_tensor_wav(torch.tensor(self.noise_1)),
+                normalize_tensor_wav(torch.tensor(self.noise_2))
             )
             yield rtn
 
