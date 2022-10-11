@@ -44,16 +44,18 @@ def block_until_voice_detected(sample_rate: int):
     sample = sd.rec(
         int(30. / 1000 * sample_rate),
         samplerate=sample_rate,
-        channels=1
+        channels=1,
+        dtype='int32',
+        blocking=True
     )
-    sd.wait()
-    sample = sample.flatten().astype(np.float32)
+    sample = sample.flatten()
     
     while not vad.is_speech(sample.tobytes(), sample_rate):
         sample = sd.rec(
             int(30. / 1000 * sample_rate),
             samplerate=sample_rate,
-            channels=1
+            channels=1,
+            dtype='int32',
+            blocking=True
         )
-        sd.wait()
-        sample = sample.flatten().astype(np.float32)
+        sample = sample.flatten()
